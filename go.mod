@@ -13,6 +13,7 @@ require (
 require (
 	cloud.google.com/go/compute/metadata v0.3.0 // indirect
 	cuelang.org/go v0.6.0 // indirect
+	github.com/apapsch/go-jsonmerge/v2 v2.0.0 // indirect
 	github.com/cockroachdb/apd/v3 v3.2.1 // indirect
 	github.com/go-logr/logr v1.4.2 // indirect
 	github.com/golang/groupcache v0.0.0-20210331224755-41bb18bfe9da // indirect

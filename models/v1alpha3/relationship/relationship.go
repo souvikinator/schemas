@@ -4,9 +4,24 @@
 package relationship
 
 import (
+	"encoding/json"
+	"fmt"
+	"time"
+
 	"github.com/gofrs/uuid"
-	"github.com/meshery/schemas/models/v1alpha1/capability"
-	"github.com/meshery/schemas/models/v1beta1/model"
+	"github.com/oapi-codegen/runtime"
+)
+
+// Defines values for RelationshipDefinitionCapabilitiesEntityState.
+const (
+	RelationshipDefinitionCapabilitiesEntityStateDeclaration RelationshipDefinitionCapabilitiesEntityState = "declaration"
+	RelationshipDefinitionCapabilitiesEntityStateInstance    RelationshipDefinitionCapabilitiesEntityState = "instance"
+)
+
+// Defines values for RelationshipDefinitionCapabilitiesStatus.
+const (
+	RelationshipDefinitionCapabilitiesStatusDisabled RelationshipDefinitionCapabilitiesStatus = "disabled"
+	RelationshipDefinitionCapabilitiesStatusEnabled  RelationshipDefinitionCapabilitiesStatus = "enabled"
 )
 
 // Defines values for RelationshipDefinitionKind.
@@ -16,200 +31,808 @@ const (
 	Sibling      RelationshipDefinitionKind = "sibling"
 )
 
-// Defines values for RelationshipDefinitionMetadataStylesTextTransform.
+// Defines values for RelationshipDefinitionMetadataStyles0CurveStyle.
 const (
-	RelationshipDefinitionMetadataStylesTextTransformLowercase RelationshipDefinitionMetadataStylesTextTransform = "lowercase"
-	RelationshipDefinitionMetadataStylesTextTransformNone      RelationshipDefinitionMetadataStylesTextTransform = "none"
-	RelationshipDefinitionMetadataStylesTextTransformUppercase RelationshipDefinitionMetadataStylesTextTransform = "uppercase"
+	Bezier          RelationshipDefinitionMetadataStyles0CurveStyle = "bezier"
+	Haystack        RelationshipDefinitionMetadataStyles0CurveStyle = "haystack"
+	Segments        RelationshipDefinitionMetadataStyles0CurveStyle = "segments"
+	Straight        RelationshipDefinitionMetadataStyles0CurveStyle = "straight"
+	Taxi            RelationshipDefinitionMetadataStyles0CurveStyle = "taxi"
+	UnbundledBezier RelationshipDefinitionMetadataStyles0CurveStyle = "unbundled-bezier"
 )
 
-// Defines values for RelationshipDefinitionSelectorsPatchStrategy.
+// Defines values for RelationshipDefinitionMetadataStyles0LineCap.
 const (
-	RelationshipDefinitionSelectorsPatchStrategyAdd       RelationshipDefinitionSelectorsPatchStrategy = "add"
-	RelationshipDefinitionSelectorsPatchStrategyCopy      RelationshipDefinitionSelectorsPatchStrategy = "copy"
-	RelationshipDefinitionSelectorsPatchStrategyMerge     RelationshipDefinitionSelectorsPatchStrategy = "merge"
-	RelationshipDefinitionSelectorsPatchStrategyMove      RelationshipDefinitionSelectorsPatchStrategy = "move"
-	RelationshipDefinitionSelectorsPatchStrategyRemove    RelationshipDefinitionSelectorsPatchStrategy = "remove"
-	RelationshipDefinitionSelectorsPatchStrategyStrategic RelationshipDefinitionSelectorsPatchStrategy = "strategic"
-	RelationshipDefinitionSelectorsPatchStrategyTest      RelationshipDefinitionSelectorsPatchStrategy = "test"
+	RelationshipDefinitionMetadataStyles0LineCapButt   RelationshipDefinitionMetadataStyles0LineCap = "butt"
+	RelationshipDefinitionMetadataStyles0LineCapRound  RelationshipDefinitionMetadataStyles0LineCap = "round"
+	RelationshipDefinitionMetadataStyles0LineCapSquare RelationshipDefinitionMetadataStyles0LineCap = "square"
 )
-
-type RelationshipDefinitionMetadataStylesLineStyle string
 
 // Defines values for RelationshipDefinitionMetadataStyles0LineStyle.
 const (
-	Dashed RelationshipDefinitionMetadataStylesLineStyle = "dashed"
-	Dotted RelationshipDefinitionMetadataStylesLineStyle = "dotted"
-	Solid  RelationshipDefinitionMetadataStylesLineStyle = "solid"
+	Dashed RelationshipDefinitionMetadataStyles0LineStyle = "dashed"
+	Dotted RelationshipDefinitionMetadataStyles0LineStyle = "dotted"
+	Solid  RelationshipDefinitionMetadataStyles0LineStyle = "solid"
 )
 
-type RelationshipDefinitionMetadataStylesMidTargetArrowShape string
-
-// Defines values for RelationshipDefinitionMetadataStylesMidTargetArrowShape.
+// Defines values for RelationshipDefinitionMetadataStyles0MidTargetArrowFill.
 const (
-	RelationshipDefinitionMetadataStylesMidTargetArrowShapeChevron           RelationshipDefinitionMetadataStylesMidTargetArrowShape = "chevron"
-	RelationshipDefinitionMetadataStylesMidTargetArrowShapeCircle            RelationshipDefinitionMetadataStylesMidTargetArrowShape = "circle"
-	RelationshipDefinitionMetadataStylesMidTargetArrowShapeCircleTriangle    RelationshipDefinitionMetadataStylesMidTargetArrowShape = "circle-triangle"
-	RelationshipDefinitionMetadataStylesMidTargetArrowShapeDiamond           RelationshipDefinitionMetadataStylesMidTargetArrowShape = "diamond"
-	RelationshipDefinitionMetadataStylesMidTargetArrowShapeNone              RelationshipDefinitionMetadataStylesMidTargetArrowShape = "none"
-	RelationshipDefinitionMetadataStylesMidTargetArrowShapeSquare            RelationshipDefinitionMetadataStylesMidTargetArrowShape = "square"
-	RelationshipDefinitionMetadataStylesMidTargetArrowShapeTee               RelationshipDefinitionMetadataStylesMidTargetArrowShape = "tee"
-	RelationshipDefinitionMetadataStylesMidTargetArrowShapeTriangle          RelationshipDefinitionMetadataStylesMidTargetArrowShape = "triangle"
-	RelationshipDefinitionMetadataStylesMidTargetArrowShapeTriangleBackcurve RelationshipDefinitionMetadataStylesMidTargetArrowShape = "triangle-backcurve"
-	RelationshipDefinitionMetadataStylesMidTargetArrowShapeTriangleCross     RelationshipDefinitionMetadataStylesMidTargetArrowShape = "triangle-cross"
-	RelationshipDefinitionMetadataStylesMidTargetArrowShapeTriangleTee       RelationshipDefinitionMetadataStylesMidTargetArrowShape = "triangle-tee"
-	RelationshipDefinitionMetadataStylesMidTargetArrowShapeVee               RelationshipDefinitionMetadataStylesMidTargetArrowShape = "vee"
+	RelationshipDefinitionMetadataStyles0MidTargetArrowFillFilled RelationshipDefinitionMetadataStyles0MidTargetArrowFill = "filled"
+	RelationshipDefinitionMetadataStyles0MidTargetArrowFillHollow RelationshipDefinitionMetadataStyles0MidTargetArrowFill = "hollow"
 )
 
-type RelationshipDefinitionMetadataStylesMidTargetArrowFill string
-
-// Defines values for RelationshipDefinitionMetadataStylesMidTargetArrowFill.
+// Defines values for RelationshipDefinitionMetadataStyles0MidTargetArrowShape.
 const (
-	RelationshipDefinitionMetadataStylesMidTargetArrowFillFilled RelationshipDefinitionMetadataStylesMidTargetArrowFill = "filled"
-	RelationshipDefinitionMetadataStylesMidTargetArrowFillHollow RelationshipDefinitionMetadataStylesMidTargetArrowFill = "hollow"
+	RelationshipDefinitionMetadataStyles0MidTargetArrowShapeChevron           RelationshipDefinitionMetadataStyles0MidTargetArrowShape = "chevron"
+	RelationshipDefinitionMetadataStyles0MidTargetArrowShapeCircle            RelationshipDefinitionMetadataStyles0MidTargetArrowShape = "circle"
+	RelationshipDefinitionMetadataStyles0MidTargetArrowShapeCircleTriangle    RelationshipDefinitionMetadataStyles0MidTargetArrowShape = "circle-triangle"
+	RelationshipDefinitionMetadataStyles0MidTargetArrowShapeDiamond           RelationshipDefinitionMetadataStyles0MidTargetArrowShape = "diamond"
+	RelationshipDefinitionMetadataStyles0MidTargetArrowShapeNone              RelationshipDefinitionMetadataStyles0MidTargetArrowShape = "none"
+	RelationshipDefinitionMetadataStyles0MidTargetArrowShapeSquare            RelationshipDefinitionMetadataStyles0MidTargetArrowShape = "square"
+	RelationshipDefinitionMetadataStyles0MidTargetArrowShapeTee               RelationshipDefinitionMetadataStyles0MidTargetArrowShape = "tee"
+	RelationshipDefinitionMetadataStyles0MidTargetArrowShapeTriangle          RelationshipDefinitionMetadataStyles0MidTargetArrowShape = "triangle"
+	RelationshipDefinitionMetadataStyles0MidTargetArrowShapeTriangleBackcurve RelationshipDefinitionMetadataStyles0MidTargetArrowShape = "triangle-backcurve"
+	RelationshipDefinitionMetadataStyles0MidTargetArrowShapeTriangleCross     RelationshipDefinitionMetadataStyles0MidTargetArrowShape = "triangle-cross"
+	RelationshipDefinitionMetadataStyles0MidTargetArrowShapeTriangleTee       RelationshipDefinitionMetadataStyles0MidTargetArrowShape = "triangle-tee"
+	RelationshipDefinitionMetadataStyles0MidTargetArrowShapeVee               RelationshipDefinitionMetadataStyles0MidTargetArrowShape = "vee"
 )
 
-// RelationshipDefinitionMetadataStylesCurveStyle The curving method used to separate two or more edges between two nodes; may be haystack (very fast, bundled straight edges for which loops and compounds are unsupported), straight (straight edges with all arrows supported), bezier (bundled curved edges), unbundled-bezier (curved edges for use with manual control points), segments (a series of straight lines), taxi (right-angled lines, hierarchically bundled). Note that haystack edges work best with ellipse, rectangle, or similar nodes. Smaller node shapes, like triangle, will not be as aesthetically pleasing. Also note that edge endpoint arrows are unsupported for haystack edges.
-type RelationshipDefinitionMetadataStylesCurveStyle string
-
-// Defines values for RelationshipDefinitionMetadataStylesCurveStyle.
+// Defines values for RelationshipDefinitionMetadataStyles0TargetArrowFill.
 const (
-	Bezier          RelationshipDefinitionMetadataStylesCurveStyle = "bezier"
-	Haystack        RelationshipDefinitionMetadataStylesCurveStyle = "haystack"
-	Segments        RelationshipDefinitionMetadataStylesCurveStyle = "segments"
-	Straight        RelationshipDefinitionMetadataStylesCurveStyle = "straight"
-	Taxi            RelationshipDefinitionMetadataStylesCurveStyle = "taxi"
-	UnbundledBezier RelationshipDefinitionMetadataStylesCurveStyle = "unbundled-bezier"
+	RelationshipDefinitionMetadataStyles0TargetArrowFillFilled RelationshipDefinitionMetadataStyles0TargetArrowFill = "filled"
+	RelationshipDefinitionMetadataStyles0TargetArrowFillHollow RelationshipDefinitionMetadataStyles0TargetArrowFill = "hollow"
 )
 
-// RelationshipDefinitionMetadataStylesLineCap The cap style of the edge’s line; may be butt (default), round, or square. The cap may or may not be visible, depending on the shape of the node and the relative size of the node and edge. Caps other than butt extend beyond the specified endpoint of the edge.
-type RelationshipDefinitionMetadataStylesLineCap string
-
-// Defines values for RelationshipDefinitionMetadataStylesLineCap.
+// Defines values for RelationshipDefinitionMetadataStyles0TargetArrowShape.
 const (
-	RelationshipDefinitionMetadataStylesLineCapButt   RelationshipDefinitionMetadataStylesLineCap = "butt"
-	RelationshipDefinitionMetadataStylesLineCapRound  RelationshipDefinitionMetadataStylesLineCap = "round"
-	RelationshipDefinitionMetadataStylesLineCapSquare RelationshipDefinitionMetadataStylesLineCap = "square"
+	RelationshipDefinitionMetadataStyles0TargetArrowShapeChevron           RelationshipDefinitionMetadataStyles0TargetArrowShape = "chevron"
+	RelationshipDefinitionMetadataStyles0TargetArrowShapeCircle            RelationshipDefinitionMetadataStyles0TargetArrowShape = "circle"
+	RelationshipDefinitionMetadataStyles0TargetArrowShapeCircleTriangle    RelationshipDefinitionMetadataStyles0TargetArrowShape = "circle-triangle"
+	RelationshipDefinitionMetadataStyles0TargetArrowShapeDiamond           RelationshipDefinitionMetadataStyles0TargetArrowShape = "diamond"
+	RelationshipDefinitionMetadataStyles0TargetArrowShapeNone              RelationshipDefinitionMetadataStyles0TargetArrowShape = "none"
+	RelationshipDefinitionMetadataStyles0TargetArrowShapeSquare            RelationshipDefinitionMetadataStyles0TargetArrowShape = "square"
+	RelationshipDefinitionMetadataStyles0TargetArrowShapeTee               RelationshipDefinitionMetadataStyles0TargetArrowShape = "tee"
+	RelationshipDefinitionMetadataStyles0TargetArrowShapeTriangle          RelationshipDefinitionMetadataStyles0TargetArrowShape = "triangle"
+	RelationshipDefinitionMetadataStyles0TargetArrowShapeTriangleBackcurve RelationshipDefinitionMetadataStyles0TargetArrowShape = "triangle-backcurve"
+	RelationshipDefinitionMetadataStyles0TargetArrowShapeTriangleCross     RelationshipDefinitionMetadataStyles0TargetArrowShape = "triangle-cross"
+	RelationshipDefinitionMetadataStyles0TargetArrowShapeTriangleTee       RelationshipDefinitionMetadataStyles0TargetArrowShape = "triangle-tee"
+	RelationshipDefinitionMetadataStyles0TargetArrowShapeVee               RelationshipDefinitionMetadataStyles0TargetArrowShape = "vee"
 )
 
-// RelationshipDefinitionMetadataStylesTargetArrowShape The shape of the edge’s source arrow
-type RelationshipDefinitionMetadataStylesTargetArrowShape string
-
+// Defines values for RelationshipDefinitionMetadataStyles0TextTransform.
 const (
-	RelationshipDefinitionMetadataStylesTargetArrowShapeChevron           RelationshipDefinitionMetadataStylesTargetArrowShape = "chevron"
-	RelationshipDefinitionMetadataStylesTargetArrowShapeCircle            RelationshipDefinitionMetadataStylesTargetArrowShape = "circle"
-	RelationshipDefinitionMetadataStylesTargetArrowShapeCircleTriangle    RelationshipDefinitionMetadataStylesTargetArrowShape = "circle-triangle"
-	RelationshipDefinitionMetadataStylesTargetArrowShapeDiamond           RelationshipDefinitionMetadataStylesTargetArrowShape = "diamond"
-	RelationshipDefinitionMetadataStylesTargetArrowShapeNone              RelationshipDefinitionMetadataStylesTargetArrowShape = "none"
-	RelationshipDefinitionMetadataStylesTargetArrowShapeSquare            RelationshipDefinitionMetadataStylesTargetArrowShape = "square"
-	RelationshipDefinitionMetadataStylesTargetArrowShapeTee               RelationshipDefinitionMetadataStylesTargetArrowShape = "tee"
-	RelationshipDefinitionMetadataStylesTargetArrowShapeTriangle          RelationshipDefinitionMetadataStylesTargetArrowShape = "triangle"
-	RelationshipDefinitionMetadataStylesTargetArrowShapeTriangleBackcurve RelationshipDefinitionMetadataStylesTargetArrowShape = "triangle-backcurve"
-	RelationshipDefinitionMetadataStylesTargetArrowShapeTriangleCross     RelationshipDefinitionMetadataStylesTargetArrowShape = "triangle-cross"
-	RelationshipDefinitionMetadataStylesTargetArrowShapeTriangleTee       RelationshipDefinitionMetadataStylesTargetArrowShape = "triangle-tee"
-	RelationshipDefinitionMetadataStylesTargetArrowShapeVee               RelationshipDefinitionMetadataStylesTargetArrowShape = "vee"
+	RelationshipDefinitionMetadataStyles0TextTransformLowercase RelationshipDefinitionMetadataStyles0TextTransform = "lowercase"
+	RelationshipDefinitionMetadataStyles0TextTransformNone      RelationshipDefinitionMetadataStyles0TextTransform = "none"
+	RelationshipDefinitionMetadataStyles0TextTransformUppercase RelationshipDefinitionMetadataStyles0TextTransform = "uppercase"
 )
 
-type Relationship_Metadata struct {
-	// Description Characterization of the meaning of the relationship and its relevance to both Meshery and entities under management.
-	Description  *string                               `json:"description" yaml:"description"`
-	Styles       *RelationshipDefinitionMetadataStyles `json:"styles" yaml:"styles"`
-	IsAnnotation *bool                                 `json:"isAnnotation" yaml:"isAnnotation"` 
-  AdditionalProperties map[string]interface{}                  `json:"-"`
-}
+// Defines values for RelationshipDefinitionMetadataStyles1TextTransform.
+const (
+	Lowercase RelationshipDefinitionMetadataStyles1TextTransform = "lowercase"
+	None      RelationshipDefinitionMetadataStyles1TextTransform = "none"
+	Uppercase RelationshipDefinitionMetadataStyles1TextTransform = "uppercase"
+)
 
-type MatchSelectorItem struct {
-	Id         *uuid.UUID  `json:"id" yaml:"id"`
-	Kind       string      `json:"kind" yaml:"kind"`
-	MutatorRef *[][]string `json:"mutatorRef,omitempty" yaml:"mutatorRef,omitempty"`
-	MutatedRef *[][]string `json:"mutatedRef,omitempty" yaml:"mutatedRef,omitempty"`
-}
+// Defines values for RelationshipDefinitionModelMetadataCapabilitiesEntityState.
+const (
+	RelationshipDefinitionModelMetadataCapabilitiesEntityStateDeclaration RelationshipDefinitionModelMetadataCapabilitiesEntityState = "declaration"
+	RelationshipDefinitionModelMetadataCapabilitiesEntityStateInstance    RelationshipDefinitionModelMetadataCapabilitiesEntityState = "instance"
+)
 
-type MatchSelector struct {
-	Refs *[][]string          `json:"refs,omitempty" yaml:"refs,omitempty"`
-	From *[]MatchSelectorItem `json:"from,omitempty" yaml:"from,omitempty"`
-	To   *[]MatchSelectorItem `json:"to,omitempty" yaml:"to,omitempty"`
-}
+// Defines values for RelationshipDefinitionModelMetadataCapabilitiesStatus.
+const (
+	RelationshipDefinitionModelMetadataCapabilitiesStatusDisabled RelationshipDefinitionModelMetadataCapabilitiesStatus = "disabled"
+	RelationshipDefinitionModelMetadataCapabilitiesStatusEnabled  RelationshipDefinitionModelMetadataCapabilitiesStatus = "enabled"
+)
 
-type SelectorItem struct {
-	// Id A Universally Unique Identifier used to uniquely identify entites in Meshery. The UUID core defintion is used across different schemas.
-	Id    *uuid.UUID    `json:"id" yaml:"id"`
-	Kind  *string       `json:"kind" yaml:"kind"`
-	Match MatchSelector `json:"match,omitempty" yaml:"match,omitempty"`
+// Defines values for RelationshipDefinitionModelRegistrantStatus.
+const (
+	RelationshipDefinitionModelRegistrantStatusConnected    RelationshipDefinitionModelRegistrantStatus = "connected"
+	RelationshipDefinitionModelRegistrantStatusDeleted      RelationshipDefinitionModelRegistrantStatus = "deleted"
+	RelationshipDefinitionModelRegistrantStatusDisconnected RelationshipDefinitionModelRegistrantStatus = "disconnected"
+	RelationshipDefinitionModelRegistrantStatusDiscovered   RelationshipDefinitionModelRegistrantStatus = "discovered"
+	RelationshipDefinitionModelRegistrantStatusIgnored      RelationshipDefinitionModelRegistrantStatus = "ignored"
+	RelationshipDefinitionModelRegistrantStatusMaintenance  RelationshipDefinitionModelRegistrantStatus = "maintenance"
+	RelationshipDefinitionModelRegistrantStatusNotFound     RelationshipDefinitionModelRegistrantStatus = "not found"
+	RelationshipDefinitionModelRegistrantStatusRegistered   RelationshipDefinitionModelRegistrantStatus = "registered"
+)
 
-	// Model Name of the model implicated by this selector. Learn more at https://docs.meshery.io/concepts/models
-	Model *model.ModelDefinition                  `json:"model,omitempty" yaml:"model"`
-	Patch *RelationshipDefinition_Selectors_Patch `json:"patch" yaml:"patch"`
-}
+// Defines values for RelationshipDefinitionModelStatus.
+const (
+	RelationshipDefinitionModelStatusDuplicate RelationshipDefinitionModelStatus = "duplicate"
+	RelationshipDefinitionModelStatusEnabled   RelationshipDefinitionModelStatus = "enabled"
+	RelationshipDefinitionModelStatusIgnored   RelationshipDefinitionModelStatus = "ignored"
+)
 
-type Selector struct {
-	// From Describes the component(s) which are involved in the relationship along with a set of actions to perform upon selection match.
-	From []SelectorItem `json:"from" yaml:"from"`
+// Defines values for RelationshipDefinitionSelectorsAllowFromModelMetadataCapabilitiesEntityState.
+const (
+	RelationshipDefinitionSelectorsAllowFromModelMetadataCapabilitiesEntityStateDeclaration RelationshipDefinitionSelectorsAllowFromModelMetadataCapabilitiesEntityState = "declaration"
+	RelationshipDefinitionSelectorsAllowFromModelMetadataCapabilitiesEntityStateInstance    RelationshipDefinitionSelectorsAllowFromModelMetadataCapabilitiesEntityState = "instance"
+)
 
-	// To Describes the component(s) which are involved in the relationship along with a set of actions to perform upon selection match.
-	To []SelectorItem `json:"to" yaml:"to"`
-}
+// Defines values for RelationshipDefinitionSelectorsAllowFromModelMetadataCapabilitiesStatus.
+const (
+	RelationshipDefinitionSelectorsAllowFromModelMetadataCapabilitiesStatusDisabled RelationshipDefinitionSelectorsAllowFromModelMetadataCapabilitiesStatus = "disabled"
+	RelationshipDefinitionSelectorsAllowFromModelMetadataCapabilitiesStatusEnabled  RelationshipDefinitionSelectorsAllowFromModelMetadataCapabilitiesStatus = "enabled"
+)
 
-type SelectorSet []struct {
-	// Allow Selectors used to define relationships which are allowed.
-	Allow Selector `json:"allow" yaml:"allow"`
+// Defines values for RelationshipDefinitionSelectorsAllowFromModelRegistrantStatus.
+const (
+	RelationshipDefinitionSelectorsAllowFromModelRegistrantStatusConnected    RelationshipDefinitionSelectorsAllowFromModelRegistrantStatus = "connected"
+	RelationshipDefinitionSelectorsAllowFromModelRegistrantStatusDeleted      RelationshipDefinitionSelectorsAllowFromModelRegistrantStatus = "deleted"
+	RelationshipDefinitionSelectorsAllowFromModelRegistrantStatusDisconnected RelationshipDefinitionSelectorsAllowFromModelRegistrantStatus = "disconnected"
+	RelationshipDefinitionSelectorsAllowFromModelRegistrantStatusDiscovered   RelationshipDefinitionSelectorsAllowFromModelRegistrantStatus = "discovered"
+	RelationshipDefinitionSelectorsAllowFromModelRegistrantStatusIgnored      RelationshipDefinitionSelectorsAllowFromModelRegistrantStatus = "ignored"
+	RelationshipDefinitionSelectorsAllowFromModelRegistrantStatusMaintenance  RelationshipDefinitionSelectorsAllowFromModelRegistrantStatus = "maintenance"
+	RelationshipDefinitionSelectorsAllowFromModelRegistrantStatusNotFound     RelationshipDefinitionSelectorsAllowFromModelRegistrantStatus = "not found"
+	RelationshipDefinitionSelectorsAllowFromModelRegistrantStatusRegistered   RelationshipDefinitionSelectorsAllowFromModelRegistrantStatus = "registered"
+)
 
-	// Deny Optional selectors used to define relationships which should not be created / is restricted.
-	Deny *Selector `json:"deny,omitempty" yaml:"deny,omitempty"`
-}
+// Defines values for RelationshipDefinitionSelectorsAllowFromModelStatus.
+const (
+	RelationshipDefinitionSelectorsAllowFromModelStatusDuplicate RelationshipDefinitionSelectorsAllowFromModelStatus = "duplicate"
+	RelationshipDefinitionSelectorsAllowFromModelStatusEnabled   RelationshipDefinitionSelectorsAllowFromModelStatus = "enabled"
+	RelationshipDefinitionSelectorsAllowFromModelStatusIgnored   RelationshipDefinitionSelectorsAllowFromModelStatus = "ignored"
+)
 
-// Status of the relationship.
-type RelationshipDefinitionStatus string
+// Defines values for RelationshipDefinitionSelectorsAllowFromPatchPatchStrategy.
+const (
+	RelationshipDefinitionSelectorsAllowFromPatchPatchStrategyAdd       RelationshipDefinitionSelectorsAllowFromPatchPatchStrategy = "add"
+	RelationshipDefinitionSelectorsAllowFromPatchPatchStrategyCopy      RelationshipDefinitionSelectorsAllowFromPatchPatchStrategy = "copy"
+	RelationshipDefinitionSelectorsAllowFromPatchPatchStrategyMerge     RelationshipDefinitionSelectorsAllowFromPatchPatchStrategy = "merge"
+	RelationshipDefinitionSelectorsAllowFromPatchPatchStrategyMove      RelationshipDefinitionSelectorsAllowFromPatchPatchStrategy = "move"
+	RelationshipDefinitionSelectorsAllowFromPatchPatchStrategyRemove    RelationshipDefinitionSelectorsAllowFromPatchPatchStrategy = "remove"
+	RelationshipDefinitionSelectorsAllowFromPatchPatchStrategyStrategic RelationshipDefinitionSelectorsAllowFromPatchPatchStrategy = "strategic"
+	RelationshipDefinitionSelectorsAllowFromPatchPatchStrategyTest      RelationshipDefinitionSelectorsAllowFromPatchPatchStrategy = "test"
+)
+
+// Defines values for RelationshipDefinitionSelectorsAllowToModelMetadataCapabilitiesEntityState.
+const (
+	RelationshipDefinitionSelectorsAllowToModelMetadataCapabilitiesEntityStateDeclaration RelationshipDefinitionSelectorsAllowToModelMetadataCapabilitiesEntityState = "declaration"
+	RelationshipDefinitionSelectorsAllowToModelMetadataCapabilitiesEntityStateInstance    RelationshipDefinitionSelectorsAllowToModelMetadataCapabilitiesEntityState = "instance"
+)
+
+// Defines values for RelationshipDefinitionSelectorsAllowToModelMetadataCapabilitiesStatus.
+const (
+	RelationshipDefinitionSelectorsAllowToModelMetadataCapabilitiesStatusDisabled RelationshipDefinitionSelectorsAllowToModelMetadataCapabilitiesStatus = "disabled"
+	RelationshipDefinitionSelectorsAllowToModelMetadataCapabilitiesStatusEnabled  RelationshipDefinitionSelectorsAllowToModelMetadataCapabilitiesStatus = "enabled"
+)
+
+// Defines values for RelationshipDefinitionSelectorsAllowToModelRegistrantStatus.
+const (
+	RelationshipDefinitionSelectorsAllowToModelRegistrantStatusConnected    RelationshipDefinitionSelectorsAllowToModelRegistrantStatus = "connected"
+	RelationshipDefinitionSelectorsAllowToModelRegistrantStatusDeleted      RelationshipDefinitionSelectorsAllowToModelRegistrantStatus = "deleted"
+	RelationshipDefinitionSelectorsAllowToModelRegistrantStatusDisconnected RelationshipDefinitionSelectorsAllowToModelRegistrantStatus = "disconnected"
+	RelationshipDefinitionSelectorsAllowToModelRegistrantStatusDiscovered   RelationshipDefinitionSelectorsAllowToModelRegistrantStatus = "discovered"
+	RelationshipDefinitionSelectorsAllowToModelRegistrantStatusIgnored      RelationshipDefinitionSelectorsAllowToModelRegistrantStatus = "ignored"
+	RelationshipDefinitionSelectorsAllowToModelRegistrantStatusMaintenance  RelationshipDefinitionSelectorsAllowToModelRegistrantStatus = "maintenance"
+	RelationshipDefinitionSelectorsAllowToModelRegistrantStatusNotFound     RelationshipDefinitionSelectorsAllowToModelRegistrantStatus = "not found"
+	RelationshipDefinitionSelectorsAllowToModelRegistrantStatusRegistered   RelationshipDefinitionSelectorsAllowToModelRegistrantStatus = "registered"
+)
+
+// Defines values for RelationshipDefinitionSelectorsAllowToModelStatus.
+const (
+	RelationshipDefinitionSelectorsAllowToModelStatusDuplicate RelationshipDefinitionSelectorsAllowToModelStatus = "duplicate"
+	RelationshipDefinitionSelectorsAllowToModelStatusEnabled   RelationshipDefinitionSelectorsAllowToModelStatus = "enabled"
+	RelationshipDefinitionSelectorsAllowToModelStatusIgnored   RelationshipDefinitionSelectorsAllowToModelStatus = "ignored"
+)
+
+// Defines values for RelationshipDefinitionSelectorsAllowToPatchPatchStrategy.
+const (
+	RelationshipDefinitionSelectorsAllowToPatchPatchStrategyAdd       RelationshipDefinitionSelectorsAllowToPatchPatchStrategy = "add"
+	RelationshipDefinitionSelectorsAllowToPatchPatchStrategyCopy      RelationshipDefinitionSelectorsAllowToPatchPatchStrategy = "copy"
+	RelationshipDefinitionSelectorsAllowToPatchPatchStrategyMerge     RelationshipDefinitionSelectorsAllowToPatchPatchStrategy = "merge"
+	RelationshipDefinitionSelectorsAllowToPatchPatchStrategyMove      RelationshipDefinitionSelectorsAllowToPatchPatchStrategy = "move"
+	RelationshipDefinitionSelectorsAllowToPatchPatchStrategyRemove    RelationshipDefinitionSelectorsAllowToPatchPatchStrategy = "remove"
+	RelationshipDefinitionSelectorsAllowToPatchPatchStrategyStrategic RelationshipDefinitionSelectorsAllowToPatchPatchStrategy = "strategic"
+	RelationshipDefinitionSelectorsAllowToPatchPatchStrategyTest      RelationshipDefinitionSelectorsAllowToPatchPatchStrategy = "test"
+)
+
+// Defines values for RelationshipDefinitionSelectorsDenyFromModelMetadataCapabilitiesEntityState.
+const (
+	RelationshipDefinitionSelectorsDenyFromModelMetadataCapabilitiesEntityStateDeclaration RelationshipDefinitionSelectorsDenyFromModelMetadataCapabilitiesEntityState = "declaration"
+	RelationshipDefinitionSelectorsDenyFromModelMetadataCapabilitiesEntityStateInstance    RelationshipDefinitionSelectorsDenyFromModelMetadataCapabilitiesEntityState = "instance"
+)
+
+// Defines values for RelationshipDefinitionSelectorsDenyFromModelMetadataCapabilitiesStatus.
+const (
+	RelationshipDefinitionSelectorsDenyFromModelMetadataCapabilitiesStatusDisabled RelationshipDefinitionSelectorsDenyFromModelMetadataCapabilitiesStatus = "disabled"
+	RelationshipDefinitionSelectorsDenyFromModelMetadataCapabilitiesStatusEnabled  RelationshipDefinitionSelectorsDenyFromModelMetadataCapabilitiesStatus = "enabled"
+)
+
+// Defines values for RelationshipDefinitionSelectorsDenyFromModelRegistrantStatus.
+const (
+	RelationshipDefinitionSelectorsDenyFromModelRegistrantStatusConnected    RelationshipDefinitionSelectorsDenyFromModelRegistrantStatus = "connected"
+	RelationshipDefinitionSelectorsDenyFromModelRegistrantStatusDeleted      RelationshipDefinitionSelectorsDenyFromModelRegistrantStatus = "deleted"
+	RelationshipDefinitionSelectorsDenyFromModelRegistrantStatusDisconnected RelationshipDefinitionSelectorsDenyFromModelRegistrantStatus = "disconnected"
+	RelationshipDefinitionSelectorsDenyFromModelRegistrantStatusDiscovered   RelationshipDefinitionSelectorsDenyFromModelRegistrantStatus = "discovered"
+	RelationshipDefinitionSelectorsDenyFromModelRegistrantStatusIgnored      RelationshipDefinitionSelectorsDenyFromModelRegistrantStatus = "ignored"
+	RelationshipDefinitionSelectorsDenyFromModelRegistrantStatusMaintenance  RelationshipDefinitionSelectorsDenyFromModelRegistrantStatus = "maintenance"
+	RelationshipDefinitionSelectorsDenyFromModelRegistrantStatusNotFound     RelationshipDefinitionSelectorsDenyFromModelRegistrantStatus = "not found"
+	RelationshipDefinitionSelectorsDenyFromModelRegistrantStatusRegistered   RelationshipDefinitionSelectorsDenyFromModelRegistrantStatus = "registered"
+)
+
+// Defines values for RelationshipDefinitionSelectorsDenyFromModelStatus.
+const (
+	RelationshipDefinitionSelectorsDenyFromModelStatusDuplicate RelationshipDefinitionSelectorsDenyFromModelStatus = "duplicate"
+	RelationshipDefinitionSelectorsDenyFromModelStatusEnabled   RelationshipDefinitionSelectorsDenyFromModelStatus = "enabled"
+	RelationshipDefinitionSelectorsDenyFromModelStatusIgnored   RelationshipDefinitionSelectorsDenyFromModelStatus = "ignored"
+)
+
+// Defines values for RelationshipDefinitionSelectorsDenyFromPatchPatchStrategy.
+const (
+	RelationshipDefinitionSelectorsDenyFromPatchPatchStrategyAdd       RelationshipDefinitionSelectorsDenyFromPatchPatchStrategy = "add"
+	RelationshipDefinitionSelectorsDenyFromPatchPatchStrategyCopy      RelationshipDefinitionSelectorsDenyFromPatchPatchStrategy = "copy"
+	RelationshipDefinitionSelectorsDenyFromPatchPatchStrategyMerge     RelationshipDefinitionSelectorsDenyFromPatchPatchStrategy = "merge"
+	RelationshipDefinitionSelectorsDenyFromPatchPatchStrategyMove      RelationshipDefinitionSelectorsDenyFromPatchPatchStrategy = "move"
+	RelationshipDefinitionSelectorsDenyFromPatchPatchStrategyRemove    RelationshipDefinitionSelectorsDenyFromPatchPatchStrategy = "remove"
+	RelationshipDefinitionSelectorsDenyFromPatchPatchStrategyStrategic RelationshipDefinitionSelectorsDenyFromPatchPatchStrategy = "strategic"
+	RelationshipDefinitionSelectorsDenyFromPatchPatchStrategyTest      RelationshipDefinitionSelectorsDenyFromPatchPatchStrategy = "test"
+)
+
+// Defines values for RelationshipDefinitionSelectorsDenyToModelMetadataCapabilitiesEntityState.
+const (
+	RelationshipDefinitionSelectorsDenyToModelMetadataCapabilitiesEntityStateDeclaration RelationshipDefinitionSelectorsDenyToModelMetadataCapabilitiesEntityState = "declaration"
+	RelationshipDefinitionSelectorsDenyToModelMetadataCapabilitiesEntityStateInstance    RelationshipDefinitionSelectorsDenyToModelMetadataCapabilitiesEntityState = "instance"
+)
+
+// Defines values for RelationshipDefinitionSelectorsDenyToModelMetadataCapabilitiesStatus.
+const (
+	RelationshipDefinitionSelectorsDenyToModelMetadataCapabilitiesStatusDisabled RelationshipDefinitionSelectorsDenyToModelMetadataCapabilitiesStatus = "disabled"
+	RelationshipDefinitionSelectorsDenyToModelMetadataCapabilitiesStatusEnabled  RelationshipDefinitionSelectorsDenyToModelMetadataCapabilitiesStatus = "enabled"
+)
+
+// Defines values for RelationshipDefinitionSelectorsDenyToModelRegistrantStatus.
+const (
+	RelationshipDefinitionSelectorsDenyToModelRegistrantStatusConnected    RelationshipDefinitionSelectorsDenyToModelRegistrantStatus = "connected"
+	RelationshipDefinitionSelectorsDenyToModelRegistrantStatusDeleted      RelationshipDefinitionSelectorsDenyToModelRegistrantStatus = "deleted"
+	RelationshipDefinitionSelectorsDenyToModelRegistrantStatusDisconnected RelationshipDefinitionSelectorsDenyToModelRegistrantStatus = "disconnected"
+	RelationshipDefinitionSelectorsDenyToModelRegistrantStatusDiscovered   RelationshipDefinitionSelectorsDenyToModelRegistrantStatus = "discovered"
+	RelationshipDefinitionSelectorsDenyToModelRegistrantStatusIgnored      RelationshipDefinitionSelectorsDenyToModelRegistrantStatus = "ignored"
+	RelationshipDefinitionSelectorsDenyToModelRegistrantStatusMaintenance  RelationshipDefinitionSelectorsDenyToModelRegistrantStatus = "maintenance"
+	RelationshipDefinitionSelectorsDenyToModelRegistrantStatusNotFound     RelationshipDefinitionSelectorsDenyToModelRegistrantStatus = "not found"
+	RelationshipDefinitionSelectorsDenyToModelRegistrantStatusRegistered   RelationshipDefinitionSelectorsDenyToModelRegistrantStatus = "registered"
+)
+
+// Defines values for RelationshipDefinitionSelectorsDenyToModelStatus.
+const (
+	RelationshipDefinitionSelectorsDenyToModelStatusDuplicate RelationshipDefinitionSelectorsDenyToModelStatus = "duplicate"
+	RelationshipDefinitionSelectorsDenyToModelStatusEnabled   RelationshipDefinitionSelectorsDenyToModelStatus = "enabled"
+	RelationshipDefinitionSelectorsDenyToModelStatusIgnored   RelationshipDefinitionSelectorsDenyToModelStatus = "ignored"
+)
+
+// Defines values for RelationshipDefinitionSelectorsDenyToPatchPatchStrategy.
+const (
+	RelationshipDefinitionSelectorsDenyToPatchPatchStrategyAdd       RelationshipDefinitionSelectorsDenyToPatchPatchStrategy = "add"
+	RelationshipDefinitionSelectorsDenyToPatchPatchStrategyCopy      RelationshipDefinitionSelectorsDenyToPatchPatchStrategy = "copy"
+	RelationshipDefinitionSelectorsDenyToPatchPatchStrategyMerge     RelationshipDefinitionSelectorsDenyToPatchPatchStrategy = "merge"
+	RelationshipDefinitionSelectorsDenyToPatchPatchStrategyMove      RelationshipDefinitionSelectorsDenyToPatchPatchStrategy = "move"
+	RelationshipDefinitionSelectorsDenyToPatchPatchStrategyRemove    RelationshipDefinitionSelectorsDenyToPatchPatchStrategy = "remove"
+	RelationshipDefinitionSelectorsDenyToPatchPatchStrategyStrategic RelationshipDefinitionSelectorsDenyToPatchPatchStrategy = "strategic"
+	RelationshipDefinitionSelectorsDenyToPatchPatchStrategyTest      RelationshipDefinitionSelectorsDenyToPatchPatchStrategy = "test"
+)
 
 // Defines values for RelationshipDefinitionStatus.
 const (
-	Deleted RelationshipDefinitionStatus = "deleted"
-	Enabled RelationshipDefinitionStatus = "enabled"
-	Ignored RelationshipDefinitionStatus = "ignored"
+	Approved RelationshipDefinitionStatus = "approved"
+	Deleted  RelationshipDefinitionStatus = "deleted"
+	Enabled  RelationshipDefinitionStatus = "enabled"
+	Ignored  RelationshipDefinitionStatus = "ignored"
+	Pending  RelationshipDefinitionStatus = "pending"
 )
 
 // RelationshipDefinition Relationships define the nature of interaction between interconnected components in Meshery. The combination of relationship properties kind, type, and subtype characterize various genealogical relations among and between components. Relationships have selectors, selector sets, metadata, and optional parameters. Learn more at https://docs.meshery.io/concepts/logical/relationships.
 type RelationshipDefinition struct {
-	// Id Uniquely identifies the entity
-	Id uuid.UUID `json:"id" yaml:"id"`
-
 	// Capabilities Capabilities associated with the relationship.
-	Capabilities *[]capability.Capability `json:"capabilities,omitempty" yaml:"capabilities" gorm:"type:bytes;serializer:json"`
+	Capabilities *[]struct {
+		// Description A written representation of the purpose and characteristics of the capability.
+		Description *string `json:"description" yaml:"description"`
+
+		// DisplayName Name of the capability in human-readible format.
+		DisplayName string `json:"displayName" yaml:"displayName"`
+
+		// EntityState State of the entity in which the capability is applicable.
+		EntityState []RelationshipDefinitionCapabilitiesEntityState `json:"entityState"`
+
+		// Key Key that backs the capability.
+		Key *string `json:"key" yaml:"key"`
+
+		// Kind Top-level categorization of the capability
+		Kind string `json:"kind" yaml:"kind"`
+
+		// Metadata Metadata contains additional information associated with the capability. Extension point.
+		Metadata *map[string]interface{} `json:"metadata" yaml:"metadata"`
+
+		// SchemaVersion Specifies the version of the schema to which the capability definition conforms.
+		SchemaVersion string `json:"schemaVersion" yaml:"schemaVersion"`
+
+		// Status Status of the capability
+		Status RelationshipDefinitionCapabilitiesStatus `json:"status" yaml:"status"`
+
+		// SubType Most granular unit of capability classification. The combination of Kind, Type and SubType together uniquely identify a Capability.
+		SubType *string `json:"subType" yaml:"subType"`
+
+		// Type Classification of capabilities. Used to group capabilities similar in nature.
+		Type string `json:"type" yaml:"type"`
+
+		// Version Version of the capability definition.
+		Version string `json:"version" yaml:"version"`
+	} `gorm:"type:bytes;serializer:json" json:"capabilities,omitempty"`
 
 	// EvaluationQuery Optional. Assigns the policy to be used for the evaluation of the relationship. Deprecation Notice: In the future, this property is either to be removed or to it is to be an array of optional policy $refs.
 	EvaluationQuery *string `json:"evaluationQuery" yaml:"evaluationQuery"`
+
+	// Id Uniquely identifies the entity (i.e. component) as defined in a declaration (i.e. design).
+	Id *uuid.UUID `json:"id" yaml:"id"`
 
 	// Kind Kind of the Relationship. Learn more about relationships - https://docs.meshery.io/concepts/logical/relationships.
 	Kind RelationshipDefinitionKind `json:"kind" yaml:"kind"`
 
 	// Metadata Metadata contains additional information associated with the Relationship.
-	Metadata *Relationship_Metadata `json:"metadata,omitempty" yaml:"metadata" gorm:"type:bytes;serializer:json"`
+	Metadata *RelationshipDefinition_Metadata `gorm:"foreignKey:ModelId;references:Id" json:"metadata,omitempty"`
 
 	// Model Name of the model in which this relationship is packaged.
-	Model model.ModelDefinition `json:"model" yaml:"model" gorm:"foreignKey:ModelId;references:Id"`
+	Model struct {
+		// Category Category of the model.
+		Category struct {
+			// Id A Universally Unique Identifier used to uniquely identify entites in Meshery. The UUID core defintion is used across different schemas.
+			Id       *uuid.UUID              `json:"id" yaml:"id"`
+			Metadata *map[string]interface{} `json:"metadata" yaml:"metadata"`
+			Name     *string                 `json:"name" yaml:"name"`
+		} `gorm:"foreignKey:CategoryId;references:Id" json:"category" yaml:"category"`
 
-	ModelId uuid.UUID `json:"-" gorm:"index:idx_relationship_definition_dbs_model_id,column:model_id"`
+		// Description Description of the model.
+		Description *string `json:"description" yaml:"description"`
+
+		// DisplayName Human-readable name for the model.
+		DisplayName *string `json:"displayName" yaml:"displayName"`
+
+		// Id Uniquely identifies the entity (i.e. component) as defined in a declaration (i.e. design).
+		Id *uuid.UUID `json:"id" yaml:"id"`
+
+		// Metadata Metadata containing additional information associated with the model.
+		Metadata *RelationshipDefinition_Model_Metadata `gorm:"type:bytes;serializer:json" json:"metadata,omitempty"`
+
+		// Model Registrant-defined data associated with the model. Properties pertain to the software being managed (e.g. Kubernetes v1.31)
+		Model *struct {
+			// Version Version of the model as defined by the registrant.
+			Version string `json:"version" yaml:"version"`
+		} `gorm:"type:bytes;serializer:json" json:"model,omitempty"`
+
+		// Name The unique name for the model within the scope of a registrant.
+		Name string `json:"name" yaml:"name"`
+
+		// Registrant Meshery Connections are managed and unmanaged resources that either through discovery or manual entry are tracked by Meshery. Learn more at https://docs.meshery.io/concepts/logical/connections
+		Registrant struct {
+			CreatedAt time.Time `json:"created_at" yaml:"created_at"`
+
+			// CredentialId Credential ID
+			CredentialId *uuid.UUID `db:"credential_id" json:"credential_id" yaml:"credential_id"`
+			DeletedAt    time.Time  `json:"deleted_at" yaml:"deleted_at"`
+
+			// Id ID
+			Id *uuid.UUID `json:"id" yaml:"id"`
+
+			// Kind Connection Kind
+			Kind     string                  `db:"kind" json:"kind" yaml:"kind"`
+			Metadata *map[string]interface{} `db:"metadata" json:"metadata" yaml:"metadata"`
+
+			// Name Connection Name
+			Name *string `db:"name" json:"name" yaml:"name"`
+
+			// Status Connection Status
+			Status RelationshipDefinitionModelRegistrantStatus `db:"status" json:"status" yaml:"status"`
+
+			// SubType Connection Subtype
+			SubType *string `db:"sub_type" json:"sub_type" yaml:"sub_type"`
+
+			// Type Connection Type
+			Type      string    `db:"type" json:"type" yaml:"type"`
+			UpdatedAt time.Time `json:"updated_at" yaml:"updated_at"`
+
+			// UserID A Universally Unique Identifier used to uniquely identify entites in Meshery. The UUID core defintion is used across different schemas.
+			UserID *uuid.UUID `json:"user_id" yaml:"user_id"`
+		} `gorm:"foreignKey:RegistrantId;references:Id" json:"registrant" yaml:"registrant"`
+
+		// SchemaVersion Specifies the version of the schema used for the definition.
+		SchemaVersion *string `json:"schemaVersion" yaml:"schemaVersion"`
+
+		// Status Status of model, including:
+		// - duplicate: this component is a duplicate of another. The component that is to be the canonical reference and that is duplicated by other components should not be assigned the 'duplicate' status.
+		// - maintenance: model is unavailable for a period of time.
+		// - enabled: model is available for use for all users of this Meshery Server.
+		// - ignored: model is unavailable for use for all users of this Meshery Server.
+		Status *RelationshipDefinitionModelStatus `json:"status" yaml:"status"`
+
+		// SubCategory Sub-category of the model.
+		SubCategory *string `json:"subCategory" yaml:"subCategory"`
+
+		// Version Version of the model definition.
+		Version string `json:"version" yaml:"version"`
+	} `json:"model"`
 
 	// SchemaVersion Specifies the version of the schema used for the relationship definition.
 	SchemaVersion string `json:"schemaVersion" yaml:"schemaVersion"`
 
 	// Selectors Selectors are organized as an array, with each item containing a distinct set of selectors that share a common functionality. This structure allows for flexibility in defining relationships, even when different components are involved.
-	Selectors *SelectorSet `json:"selectors,omitempty" yaml:"selectors,omitempty" gorm:"type:bytes;serializer:json"`
+	Selectors *[]struct {
+		// Allow Selectors used to define relationships which are allowed.
+		Allow struct {
+			// From Describes the component(s) which are involved in the relationship along with a set of actions to perform upon selection match.
+			From []struct {
+				// Id A Universally Unique Identifier used to uniquely identify entites in Meshery. The UUID core defintion is used across different schemas.
+				Id    *uuid.UUID                                         `json:"id" yaml:"id"`
+				Kind  *string                                            `json:"kind" yaml:"kind"`
+				Match *RelationshipDefinition_Selectors_Allow_From_Match `json:"match" yaml:"match"`
+
+				// Model Name of the model implicated by this selector. Learn more at https://docs.meshery.io/concepts/models
+				Model *struct {
+					// Category Category of the model.
+					Category struct {
+						// Id A Universally Unique Identifier used to uniquely identify entites in Meshery. The UUID core defintion is used across different schemas.
+						Id       *uuid.UUID              `json:"id" yaml:"id"`
+						Metadata *map[string]interface{} `json:"metadata" yaml:"metadata"`
+						Name     *string                 `json:"name" yaml:"name"`
+					} `gorm:"foreignKey:CategoryId;references:Id" json:"category" yaml:"category"`
+
+					// Description Description of the model.
+					Description *string `json:"description" yaml:"description"`
+
+					// DisplayName Human-readable name for the model.
+					DisplayName *string `json:"displayName" yaml:"displayName"`
+
+					// Id Uniquely identifies the entity (i.e. component) as defined in a declaration (i.e. design).
+					Id *uuid.UUID `json:"id" yaml:"id"`
+
+					// Metadata Metadata containing additional information associated with the model.
+					Metadata *RelationshipDefinition_Selectors_Allow_From_Model_Metadata `gorm:"type:bytes;serializer:json" json:"metadata,omitempty"`
+
+					// Model Registrant-defined data associated with the model. Properties pertain to the software being managed (e.g. Kubernetes v1.31)
+					Model *struct {
+						// Version Version of the model as defined by the registrant.
+						Version string `json:"version" yaml:"version"`
+					} `gorm:"type:bytes;serializer:json" json:"model,omitempty"`
+
+					// Name The unique name for the model within the scope of a registrant.
+					Name string `json:"name" yaml:"name"`
+
+					// Registrant Meshery Connections are managed and unmanaged resources that either through discovery or manual entry are tracked by Meshery. Learn more at https://docs.meshery.io/concepts/logical/connections
+					Registrant struct {
+						CreatedAt time.Time `json:"created_at" yaml:"created_at"`
+
+						// CredentialId Credential ID
+						CredentialId *uuid.UUID `db:"credential_id" json:"credential_id" yaml:"credential_id"`
+						DeletedAt    time.Time  `json:"deleted_at" yaml:"deleted_at"`
+
+						// Id ID
+						Id *uuid.UUID `json:"id" yaml:"id"`
+
+						// Kind Connection Kind
+						Kind     string                  `db:"kind" json:"kind" yaml:"kind"`
+						Metadata *map[string]interface{} `db:"metadata" json:"metadata" yaml:"metadata"`
+
+						// Name Connection Name
+						Name *string `db:"name" json:"name" yaml:"name"`
+
+						// Status Connection Status
+						Status RelationshipDefinitionSelectorsAllowFromModelRegistrantStatus `db:"status" json:"status" yaml:"status"`
+
+						// SubType Connection Subtype
+						SubType *string `db:"sub_type" json:"sub_type" yaml:"sub_type"`
+
+						// Type Connection Type
+						Type      string    `db:"type" json:"type" yaml:"type"`
+						UpdatedAt time.Time `json:"updated_at" yaml:"updated_at"`
+
+						// UserID A Universally Unique Identifier used to uniquely identify entites in Meshery. The UUID core defintion is used across different schemas.
+						UserID *uuid.UUID `json:"user_id" yaml:"user_id"`
+					} `gorm:"foreignKey:RegistrantId;references:Id" json:"registrant" yaml:"registrant"`
+
+					// SchemaVersion Specifies the version of the schema used for the definition.
+					SchemaVersion *string `json:"schemaVersion" yaml:"schemaVersion"`
+
+					// Status Status of model, including:
+					// - duplicate: this component is a duplicate of another. The component that is to be the canonical reference and that is duplicated by other components should not be assigned the 'duplicate' status.
+					// - maintenance: model is unavailable for a period of time.
+					// - enabled: model is available for use for all users of this Meshery Server.
+					// - ignored: model is unavailable for use for all users of this Meshery Server.
+					Status *RelationshipDefinitionSelectorsAllowFromModelStatus `json:"status" yaml:"status"`
+
+					// SubCategory Sub-category of the model.
+					SubCategory *string `json:"subCategory" yaml:"subCategory"`
+
+					// Version Version of the model definition.
+					Version string `json:"version" yaml:"version"`
+				} `json:"model,omitempty"`
+				Patch *RelationshipDefinition_Selectors_Allow_From_Patch `json:"patch" yaml:"patch"`
+			} `json:"from"`
+
+			// To Describes the component(s) which are involved in the relationship along with a set of actions to perform upon selection match.
+			To []struct {
+				// Id A Universally Unique Identifier used to uniquely identify entites in Meshery. The UUID core defintion is used across different schemas.
+				Id    *uuid.UUID                                       `json:"id" yaml:"id"`
+				Kind  *string                                          `json:"kind" yaml:"kind"`
+				Match *RelationshipDefinition_Selectors_Allow_To_Match `json:"match" yaml:"match"`
+
+				// Model Name of the model implicated by this selector. Learn more at https://docs.meshery.io/concepts/models
+				Model *struct {
+					// Category Category of the model.
+					Category struct {
+						// Id A Universally Unique Identifier used to uniquely identify entites in Meshery. The UUID core defintion is used across different schemas.
+						Id       *uuid.UUID              `json:"id" yaml:"id"`
+						Metadata *map[string]interface{} `json:"metadata" yaml:"metadata"`
+						Name     *string                 `json:"name" yaml:"name"`
+					} `gorm:"foreignKey:CategoryId;references:Id" json:"category" yaml:"category"`
+
+					// Description Description of the model.
+					Description *string `json:"description" yaml:"description"`
+
+					// DisplayName Human-readable name for the model.
+					DisplayName *string `json:"displayName" yaml:"displayName"`
+
+					// Id Uniquely identifies the entity (i.e. component) as defined in a declaration (i.e. design).
+					Id *uuid.UUID `json:"id" yaml:"id"`
+
+					// Metadata Metadata containing additional information associated with the model.
+					Metadata *RelationshipDefinition_Selectors_Allow_To_Model_Metadata `gorm:"type:bytes;serializer:json" json:"metadata,omitempty"`
+
+					// Model Registrant-defined data associated with the model. Properties pertain to the software being managed (e.g. Kubernetes v1.31)
+					Model *struct {
+						// Version Version of the model as defined by the registrant.
+						Version string `json:"version" yaml:"version"`
+					} `gorm:"type:bytes;serializer:json" json:"model,omitempty"`
+
+					// Name The unique name for the model within the scope of a registrant.
+					Name string `json:"name" yaml:"name"`
+
+					// Registrant Meshery Connections are managed and unmanaged resources that either through discovery or manual entry are tracked by Meshery. Learn more at https://docs.meshery.io/concepts/logical/connections
+					Registrant struct {
+						CreatedAt time.Time `json:"created_at" yaml:"created_at"`
+
+						// CredentialId Credential ID
+						CredentialId *uuid.UUID `db:"credential_id" json:"credential_id" yaml:"credential_id"`
+						DeletedAt    time.Time  `json:"deleted_at" yaml:"deleted_at"`
+
+						// Id ID
+						Id *uuid.UUID `json:"id" yaml:"id"`
+
+						// Kind Connection Kind
+						Kind     string                  `db:"kind" json:"kind" yaml:"kind"`
+						Metadata *map[string]interface{} `db:"metadata" json:"metadata" yaml:"metadata"`
+
+						// Name Connection Name
+						Name *string `db:"name" json:"name" yaml:"name"`
+
+						// Status Connection Status
+						Status RelationshipDefinitionSelectorsAllowToModelRegistrantStatus `db:"status" json:"status" yaml:"status"`
+
+						// SubType Connection Subtype
+						SubType *string `db:"sub_type" json:"sub_type" yaml:"sub_type"`
+
+						// Type Connection Type
+						Type      string    `db:"type" json:"type" yaml:"type"`
+						UpdatedAt time.Time `json:"updated_at" yaml:"updated_at"`
+
+						// UserID A Universally Unique Identifier used to uniquely identify entites in Meshery. The UUID core defintion is used across different schemas.
+						UserID *uuid.UUID `json:"user_id" yaml:"user_id"`
+					} `gorm:"foreignKey:RegistrantId;references:Id" json:"registrant" yaml:"registrant"`
+
+					// SchemaVersion Specifies the version of the schema used for the definition.
+					SchemaVersion *string `json:"schemaVersion" yaml:"schemaVersion"`
+
+					// Status Status of model, including:
+					// - duplicate: this component is a duplicate of another. The component that is to be the canonical reference and that is duplicated by other components should not be assigned the 'duplicate' status.
+					// - maintenance: model is unavailable for a period of time.
+					// - enabled: model is available for use for all users of this Meshery Server.
+					// - ignored: model is unavailable for use for all users of this Meshery Server.
+					Status *RelationshipDefinitionSelectorsAllowToModelStatus `json:"status" yaml:"status"`
+
+					// SubCategory Sub-category of the model.
+					SubCategory *string `json:"subCategory" yaml:"subCategory"`
+
+					// Version Version of the model definition.
+					Version string `json:"version" yaml:"version"`
+				} `json:"model,omitempty"`
+				Patch *RelationshipDefinition_Selectors_Allow_To_Patch `json:"patch" yaml:"patch"`
+			} `json:"to"`
+		} `json:"allow"`
+
+		// Deny Optional selectors used to define relationships which should not be created / is restricted.
+		Deny *struct {
+			// From Describes the component(s) which are involved in the relationship along with a set of actions to perform upon selection match.
+			From []struct {
+				// Id A Universally Unique Identifier used to uniquely identify entites in Meshery. The UUID core defintion is used across different schemas.
+				Id    *uuid.UUID                                        `json:"id" yaml:"id"`
+				Kind  *string                                           `json:"kind" yaml:"kind"`
+				Match *RelationshipDefinition_Selectors_Deny_From_Match `json:"match" yaml:"match"`
+
+				// Model Name of the model implicated by this selector. Learn more at https://docs.meshery.io/concepts/models
+				Model *struct {
+					// Category Category of the model.
+					Category struct {
+						// Id A Universally Unique Identifier used to uniquely identify entites in Meshery. The UUID core defintion is used across different schemas.
+						Id       *uuid.UUID              `json:"id" yaml:"id"`
+						Metadata *map[string]interface{} `json:"metadata" yaml:"metadata"`
+						Name     *string                 `json:"name" yaml:"name"`
+					} `gorm:"foreignKey:CategoryId;references:Id" json:"category" yaml:"category"`
+
+					// Description Description of the model.
+					Description *string `json:"description" yaml:"description"`
+
+					// DisplayName Human-readable name for the model.
+					DisplayName *string `json:"displayName" yaml:"displayName"`
+
+					// Id Uniquely identifies the entity (i.e. component) as defined in a declaration (i.e. design).
+					Id *uuid.UUID `json:"id" yaml:"id"`
+
+					// Metadata Metadata containing additional information associated with the model.
+					Metadata *RelationshipDefinition_Selectors_Deny_From_Model_Metadata `gorm:"type:bytes;serializer:json" json:"metadata,omitempty"`
+
+					// Model Registrant-defined data associated with the model. Properties pertain to the software being managed (e.g. Kubernetes v1.31)
+					Model *struct {
+						// Version Version of the model as defined by the registrant.
+						Version string `json:"version" yaml:"version"`
+					} `gorm:"type:bytes;serializer:json" json:"model,omitempty"`
+
+					// Name The unique name for the model within the scope of a registrant.
+					Name string `json:"name" yaml:"name"`
+
+					// Registrant Meshery Connections are managed and unmanaged resources that either through discovery or manual entry are tracked by Meshery. Learn more at https://docs.meshery.io/concepts/logical/connections
+					Registrant struct {
+						CreatedAt time.Time `json:"created_at" yaml:"created_at"`
+
+						// CredentialId Credential ID
+						CredentialId *uuid.UUID `db:"credential_id" json:"credential_id" yaml:"credential_id"`
+						DeletedAt    time.Time  `json:"deleted_at" yaml:"deleted_at"`
+
+						// Id ID
+						Id *uuid.UUID `json:"id" yaml:"id"`
+
+						// Kind Connection Kind
+						Kind     string                  `db:"kind" json:"kind" yaml:"kind"`
+						Metadata *map[string]interface{} `db:"metadata" json:"metadata" yaml:"metadata"`
+
+						// Name Connection Name
+						Name *string `db:"name" json:"name" yaml:"name"`
+
+						// Status Connection Status
+						Status RelationshipDefinitionSelectorsDenyFromModelRegistrantStatus `db:"status" json:"status" yaml:"status"`
+
+						// SubType Connection Subtype
+						SubType *string `db:"sub_type" json:"sub_type" yaml:"sub_type"`
+
+						// Type Connection Type
+						Type      string    `db:"type" json:"type" yaml:"type"`
+						UpdatedAt time.Time `json:"updated_at" yaml:"updated_at"`
+
+						// UserID A Universally Unique Identifier used to uniquely identify entites in Meshery. The UUID core defintion is used across different schemas.
+						UserID *uuid.UUID `json:"user_id" yaml:"user_id"`
+					} `gorm:"foreignKey:RegistrantId;references:Id" json:"registrant" yaml:"registrant"`
+
+					// SchemaVersion Specifies the version of the schema used for the definition.
+					SchemaVersion *string `json:"schemaVersion" yaml:"schemaVersion"`
+
+					// Status Status of model, including:
+					// - duplicate: this component is a duplicate of another. The component that is to be the canonical reference and that is duplicated by other components should not be assigned the 'duplicate' status.
+					// - maintenance: model is unavailable for a period of time.
+					// - enabled: model is available for use for all users of this Meshery Server.
+					// - ignored: model is unavailable for use for all users of this Meshery Server.
+					Status *RelationshipDefinitionSelectorsDenyFromModelStatus `json:"status" yaml:"status"`
+
+					// SubCategory Sub-category of the model.
+					SubCategory *string `json:"subCategory" yaml:"subCategory"`
+
+					// Version Version of the model definition.
+					Version string `json:"version" yaml:"version"`
+				} `json:"model,omitempty"`
+				Patch *RelationshipDefinition_Selectors_Deny_From_Patch `json:"patch" yaml:"patch"`
+			} `json:"from"`
+
+			// To Describes the component(s) which are involved in the relationship along with a set of actions to perform upon selection match.
+			To []struct {
+				// Id A Universally Unique Identifier used to uniquely identify entites in Meshery. The UUID core defintion is used across different schemas.
+				Id    *uuid.UUID                                      `json:"id" yaml:"id"`
+				Kind  *string                                         `json:"kind" yaml:"kind"`
+				Match *RelationshipDefinition_Selectors_Deny_To_Match `json:"match" yaml:"match"`
+
+				// Model Name of the model implicated by this selector. Learn more at https://docs.meshery.io/concepts/models
+				Model *struct {
+					// Category Category of the model.
+					Category struct {
+						// Id A Universally Unique Identifier used to uniquely identify entites in Meshery. The UUID core defintion is used across different schemas.
+						Id       *uuid.UUID              `json:"id" yaml:"id"`
+						Metadata *map[string]interface{} `json:"metadata" yaml:"metadata"`
+						Name     *string                 `json:"name" yaml:"name"`
+					} `gorm:"foreignKey:CategoryId;references:Id" json:"category" yaml:"category"`
+
+					// Description Description of the model.
+					Description *string `json:"description" yaml:"description"`
+
+					// DisplayName Human-readable name for the model.
+					DisplayName *string `json:"displayName" yaml:"displayName"`
+
+					// Id Uniquely identifies the entity (i.e. component) as defined in a declaration (i.e. design).
+					Id *uuid.UUID `json:"id" yaml:"id"`
+
+					// Metadata Metadata containing additional information associated with the model.
+					Metadata *RelationshipDefinition_Selectors_Deny_To_Model_Metadata `gorm:"type:bytes;serializer:json" json:"metadata,omitempty"`
+
+					// Model Registrant-defined data associated with the model. Properties pertain to the software being managed (e.g. Kubernetes v1.31)
+					Model *struct {
+						// Version Version of the model as defined by the registrant.
+						Version string `json:"version" yaml:"version"`
+					} `gorm:"type:bytes;serializer:json" json:"model,omitempty"`
+
+					// Name The unique name for the model within the scope of a registrant.
+					Name string `json:"name" yaml:"name"`
+
+					// Registrant Meshery Connections are managed and unmanaged resources that either through discovery or manual entry are tracked by Meshery. Learn more at https://docs.meshery.io/concepts/logical/connections
+					Registrant struct {
+						CreatedAt time.Time `json:"created_at" yaml:"created_at"`
+
+						// CredentialId Credential ID
+						CredentialId *uuid.UUID `db:"credential_id" json:"credential_id" yaml:"credential_id"`
+						DeletedAt    time.Time  `json:"deleted_at" yaml:"deleted_at"`
+
+						// Id ID
+						Id *uuid.UUID `json:"id" yaml:"id"`
+
+						// Kind Connection Kind
+						Kind     string                  `db:"kind" json:"kind" yaml:"kind"`
+						Metadata *map[string]interface{} `db:"metadata" json:"metadata" yaml:"metadata"`
+
+						// Name Connection Name
+						Name *string `db:"name" json:"name" yaml:"name"`
+
+						// Status Connection Status
+						Status RelationshipDefinitionSelectorsDenyToModelRegistrantStatus `db:"status" json:"status" yaml:"status"`
+
+						// SubType Connection Subtype
+						SubType *string `db:"sub_type" json:"sub_type" yaml:"sub_type"`
+
+						// Type Connection Type
+						Type      string    `db:"type" json:"type" yaml:"type"`
+						UpdatedAt time.Time `json:"updated_at" yaml:"updated_at"`
+
+						// UserID A Universally Unique Identifier used to uniquely identify entites in Meshery. The UUID core defintion is used across different schemas.
+						UserID *uuid.UUID `json:"user_id" yaml:"user_id"`
+					} `gorm:"foreignKey:RegistrantId;references:Id" json:"registrant" yaml:"registrant"`
+
+					// SchemaVersion Specifies the version of the schema used for the definition.
+					SchemaVersion *string `json:"schemaVersion" yaml:"schemaVersion"`
+
+					// Status Status of model, including:
+					// - duplicate: this component is a duplicate of another. The component that is to be the canonical reference and that is duplicated by other components should not be assigned the 'duplicate' status.
+					// - maintenance: model is unavailable for a period of time.
+					// - enabled: model is available for use for all users of this Meshery Server.
+					// - ignored: model is unavailable for use for all users of this Meshery Server.
+					Status *RelationshipDefinitionSelectorsDenyToModelStatus `json:"status" yaml:"status"`
+
+					// SubCategory Sub-category of the model.
+					SubCategory *string `json:"subCategory" yaml:"subCategory"`
+
+					// Version Version of the model definition.
+					Version string `json:"version" yaml:"version"`
+				} `json:"model,omitempty"`
+				Patch *RelationshipDefinition_Selectors_Deny_To_Patch `json:"patch" yaml:"patch"`
+			} `json:"to"`
+		} `json:"deny,omitempty"`
+	} `gorm:"type:bytes;serializer:json" json:"selectors,omitempty"`
+
+	// Status Status of the relationship.
+	Status *RelationshipDefinitionStatus `json:"status" yaml:"status"`
 
 	// SubType Most granular unit of relationship classification. The combination of Kind, Type and SubType together uniquely identify a Relationship.
 	SubType string `json:"subType" yaml:"subType"`
 
-	// Status of the relationship.
-	Status *RelationshipDefinitionStatus `json:"status" yaml:"status"`
-
-	// Type Classification of relationships. Used to group relationships similar in nature.
-	RelationshipType string `json:"type" yaml:"type" gorm:"column:type"`
+	// RelationshipType Classification of relationships. Used to group relationships similar in nature.
+	RelationshipType string `json:"type" yaml:"type"`
 
 	// Version Specifies the version of the relationship definition.
 	Version string `json:"version" yaml:"version"`
 }
 
-// RelationshipDefinitionCapabilitiesEntityState defines model for RelationshipDefinition.Capabilities.EntityState.
+// RelationshipDefinitionCapabilitiesEntityState A string starting with an alphanumeric character. Spaces and hyphens allowed.
 type RelationshipDefinitionCapabilitiesEntityState string
 
 // RelationshipDefinitionCapabilitiesStatus Status of the capability
@@ -218,112 +841,415 @@ type RelationshipDefinitionCapabilitiesStatus string
 // RelationshipDefinitionKind Kind of the Relationship. Learn more about relationships - https://docs.meshery.io/concepts/logical/relationships.
 type RelationshipDefinitionKind string
 
-type RelationshipDefinitionMetadataStyles0TargetArrowFill string
-
-// Defines values for RelationshipDefinitionMetadataStyles0TargetArrowFill.
-const (
-	RelationshipDefinitionMetadataStyles0TargetArrowFillFilled RelationshipDefinitionMetadataStyles0TargetArrowFill = "filled"
-	RelationshipDefinitionMetadataStyles0TargetArrowFillHollow RelationshipDefinitionMetadataStyles0TargetArrowFill = "hollow"
-)
-
 // RelationshipDefinitionMetadataStyles0 defines model for .
-type RelationshipDefinitionMetadataStyles struct {
+type RelationshipDefinitionMetadataStyles0 struct {
 	// ArrowScale Scaling for the arrow size.
-	ArrowScale *float32 `json:"arrow-scale,omitempty" yaml:"arrow-scale,omitempty"`
+	ArrowScale *float32 `json:"arrow-scale,omitempty"`
 
 	// Color The color of the element's label. Colours may be specified by name (e.g. red), hex (e.g. #ff0000 or #f00), RGB (e.g. rgb(255, 0, 0)), or HSL (e.g. hsl(0, 100%, 50%)).
-	Color *string `json:"color,omitempty" yaml:"color,omitempty"`
+	Color *string `json:"color,omitempty"`
 
 	// CurveStyle The curving method used to separate two or more edges between two nodes; may be haystack (very fast, bundled straight edges for which loops and compounds are unsupported), straight (straight edges with all arrows supported), bezier (bundled curved edges), unbundled-bezier (curved edges for use with manual control points), segments (a series of straight lines), taxi (right-angled lines, hierarchically bundled). Note that haystack edges work best with ellipse, rectangle, or similar nodes. Smaller node shapes, like triangle, will not be as aesthetically pleasing. Also note that edge endpoint arrows are unsupported for haystack edges.
-	CurveStyle *RelationshipDefinitionMetadataStylesCurveStyle `json:"curve-style,omitempty" yaml:"curve-style,omitempty"`
+	CurveStyle *RelationshipDefinitionMetadataStyles0CurveStyle `json:"curve-style,omitempty"`
 
 	// EdgeAnimation The animation to use for the edge. Can be like 'marching-ants' , 'blink' , 'moving-gradient',etc .
-	EdgeAnimation *string `json:"edge-animation,omitempty" yaml:"edge-animation,omitempty"`
+	EdgeAnimation *string `json:"edge-animation,omitempty"`
 
 	// FontFamily A comma-separated list of font names to use on the label text.
-	FontFamily *string `json:"font-family,omitempty" yaml:"font-family,omitempty"`
+	FontFamily *string `json:"font-family,omitempty"`
 
 	// FontSize The size of the label text.
-	FontSize *string `json:"font-size,omitempty" yaml:"font-size,omitempty"`
+	FontSize *string `json:"font-size,omitempty"`
 
 	// FontStyle A CSS font style to be applied to the label text.
-	FontStyle *string `json:"font-style,omitempty" yaml:"font-style,omitempty"`
+	FontStyle *string `json:"font-style,omitempty"`
 
 	// FontWeight A CSS font weight to be applied to the label text.
-	FontWeight *string `json:"font-weight,omitempty" yaml:"font-weight,omitempty"`
+	FontWeight *string `json:"font-weight,omitempty"`
 
 	// Label The text to display for an element’s label. Can give a path, e.g. data(id) will label with the elements id
-	Label *string `json:"label,omitempty" yaml:"label,omitempty"`
+	Label *string `json:"label,omitempty"`
 
 	// LineCap The cap style of the edge’s line; may be butt (default), round, or square. The cap may or may not be visible, depending on the shape of the node and the relative size of the node and edge. Caps other than butt extend beyond the specified endpoint of the edge.
-	LineCap *RelationshipDefinitionMetadataStylesLineCap `json:"line-cap,omitempty" yaml:"line-cap,omitempty"`
+	LineCap *RelationshipDefinitionMetadataStyles0LineCap `json:"line-cap,omitempty"`
 
 	// LineColor The colour of the edge’s line. Colours may be specified by name (e.g. red), hex (e.g. #ff0000 or #f00), RGB (e.g. rgb(255, 0, 0)), or HSL (e.g. hsl(0, 100%, 50%)).
-	LineColor *string `json:"line-color,omitempty" yaml:"line-color,omitempty"`
+	LineColor *string `json:"line-color,omitempty"`
 
 	// LineOpacity The opacity of the edge’s line and arrow. Useful if you wish to have a separate opacity for the edge label versus the edge line. Note that the opacity value of the edge element affects the effective opacity of its line and label subcomponents.
-	LineOpacity *float32 `json:"line-opacity,omitempty" yaml:"line-opacity,omitempty"`
+	LineOpacity *float32 `json:"line-opacity,omitempty"`
 
 	// LineStyle The style of the edge’s line.
-	LineStyle *RelationshipDefinitionMetadataStylesLineStyle `json:"line-style,omitempty" yaml:"line-style,omitempty"`
+	LineStyle *RelationshipDefinitionMetadataStyles0LineStyle `json:"line-style,omitempty"`
 
 	// MidTargetArrowColor The colour of the edge’s source arrow. Colours may be specified by name (e.g. red), hex (e.g. #ff0000 or #f00), RGB (e.g. rgb(255, 0, 0)), or HSL (e.g. hsl(0, 100%, 50%)).
-	MidTargetArrowColor *string `json:"mid-target-arrow-color,omitempty" yaml:"mid-target-arrow-color,omitempty"`
+	MidTargetArrowColor *string `json:"mid-target-arrow-color,omitempty"`
 
 	// MidTargetArrowFill The fill state of the edge’s source arrow
-	MidTargetArrowFill *RelationshipDefinitionMetadataStylesMidTargetArrowFill `json:"mid-target-arrow-fill,omitempty" yaml:"mid-target-arrow-fill,omitempty"`
+	MidTargetArrowFill *RelationshipDefinitionMetadataStyles0MidTargetArrowFill `json:"mid-target-arrow-fill,omitempty"`
 
 	// MidTargetArrowShape The shape of the edge’s source arrow
-	MidTargetArrowShape *RelationshipDefinitionMetadataStylesMidTargetArrowShape `json:"mid-target-arrow-shape,omitempty" yaml:"mid-target-arrow-shape,omitempty"`
+	MidTargetArrowShape *RelationshipDefinitionMetadataStyles0MidTargetArrowShape `json:"mid-target-arrow-shape,omitempty"`
 
 	// Opacity The opacity of the element, ranging from 0 to 1. Note that the opacity of a compound node parent affects the effective opacity of its children.See https://js.cytoscape.org/#style/visibility
-	Opacity *float32 `json:"opacity,omitempty" yaml:"opacity,omitempty"`
+	Opacity *float32 `json:"opacity,omitempty"`
 
 	// PrimaryColor Primary color of the component used for UI representation.
-	PrimaryColor string `json:"primaryColor" yaml:"primaryColor"`
+	PrimaryColor string `json:"primaryColor"`
 
 	// SecondaryColor Secondary color of the entity used for UI representation.
-	SecondaryColor *string `json:"secondaryColor,omitempty" yaml:"secondaryColor,omitempty"`
+	SecondaryColor *string `json:"secondaryColor,omitempty"`
 
 	// SourceLabel The text to display for an edge’s source label. Can give a path, e.g. data(id) will label with the elements id
-	SourceLabel *string `json:"source-label,omitempty" yaml:"source-label,omitempty"`
+	SourceLabel *string `json:"source-label,omitempty"`
 
 	// SvgColor Colored SVG of the entity used for UI representation on light background.
-	SvgColor string `json:"svgColor" yaml:"svgColor"`
+	SvgColor string `json:"svgColor"`
 
 	// SvgComplete Complete SVG of the entity used for UI representation, often inclusive of background.
-	SvgComplete *string `json:"svgComplete,omitempty" yaml:"svgComplete,omitempty"`
+	SvgComplete *string `json:"svgComplete,omitempty"`
 
 	// SvgWhite White SVG of the entity used for UI representation on dark background.
-	SvgWhite string `json:"svgWhite" yaml:"svgWhite"`
+	SvgWhite string `json:"svgWhite"`
 
 	// TargetArrowColor The colour of the edge’s source arrow. Colours may be specified by name (e.g. red), hex (e.g. #ff0000 or #f00), RGB (e.g. rgb(255, 0, 0)), or HSL (e.g. hsl(0, 100%, 50%)).
-	TargetArrowColor *string `json:"target-arrow-color,omitempty" yaml:"target-arrow-color,omitempty"`
+	TargetArrowColor *string `json:"target-arrow-color,omitempty"`
 
 	// TargetArrowFill The fill state of the edge’s source arrow
-	TargetArrowFill *RelationshipDefinitionMetadataStyles0TargetArrowFill `json:"target-arrow-fill,omitempty" yaml:"target-arrow-fill,omitempty"`
+	TargetArrowFill *RelationshipDefinitionMetadataStyles0TargetArrowFill `json:"target-arrow-fill,omitempty"`
 
 	// TargetArrowShape The shape of the edge’s source arrow
-	TargetArrowShape *RelationshipDefinitionMetadataStylesTargetArrowShape `json:"target-arrow-shape,omitempty" yaml:"target-arrow-shape,omitempty"`
+	TargetArrowShape *RelationshipDefinitionMetadataStyles0TargetArrowShape `json:"target-arrow-shape,omitempty"`
 
 	// TargetLabel The text to display for an edge’s target label. Can give a path, e.g. data(id) will label with the elements id
-	TargetLabel *string `json:"target-label,omitempty" yaml:"target-label,omitempty"`
+	TargetLabel *string `json:"target-label,omitempty"`
 
 	// TextOpacity The opacity of the label text, including its outline.
-	TextOpacity *float32 `json:"text-opacity,omitempty" yaml:"text-opacity,omitempty"`
+	TextOpacity *float32 `json:"text-opacity,omitempty"`
 
 	// TextTransform A transformation to apply to the label text
-	TextTransform *RelationshipDefinitionMetadataStylesTextTransform `json:"text-transform,omitempty" yaml:"text-transform,omitempty"`
+	TextTransform *RelationshipDefinitionMetadataStyles0TextTransform `json:"text-transform,omitempty"`
 
 	// ZIndex An integer value that affects the relative draw order of elements. In general, an element with a higher z-index will be drawn on top of an element with a lower z-index. Note that edges are under nodes despite z-index.
-	ZIndex *int `json:"z-index,omitempty" yaml:"z-index,omitempty"`
+	ZIndex *int `json:"z-index,omitempty"`
 }
 
-// RelationshipDefinitionMetadataStylesTextTransform A transformation to apply to the label text
-type RelationshipDefinitionMetadataStylesTextTransform string
+// RelationshipDefinitionMetadataStyles0CurveStyle The curving method used to separate two or more edges between two nodes; may be haystack (very fast, bundled straight edges for which loops and compounds are unsupported), straight (straight edges with all arrows supported), bezier (bundled curved edges), unbundled-bezier (curved edges for use with manual control points), segments (a series of straight lines), taxi (right-angled lines, hierarchically bundled). Note that haystack edges work best with ellipse, rectangle, or similar nodes. Smaller node shapes, like triangle, will not be as aesthetically pleasing. Also note that edge endpoint arrows are unsupported for haystack edges.
+type RelationshipDefinitionMetadataStyles0CurveStyle string
 
-// RelationshipDefinition_Selectors_Patch defines model for RelationshipDefinition.Selectors.Allow.To.Patch.
-type RelationshipDefinition_Selectors_Patch struct {
+// RelationshipDefinitionMetadataStyles0LineCap The cap style of the edge’s line; may be butt (default), round, or square. The cap may or may not be visible, depending on the shape of the node and the relative size of the node and edge. Caps other than butt extend beyond the specified endpoint of the edge.
+type RelationshipDefinitionMetadataStyles0LineCap string
+
+// RelationshipDefinitionMetadataStyles0LineStyle The style of the edge’s line.
+type RelationshipDefinitionMetadataStyles0LineStyle string
+
+// RelationshipDefinitionMetadataStyles0MidTargetArrowFill The fill state of the edge’s source arrow
+type RelationshipDefinitionMetadataStyles0MidTargetArrowFill string
+
+// RelationshipDefinitionMetadataStyles0MidTargetArrowShape The shape of the edge’s source arrow
+type RelationshipDefinitionMetadataStyles0MidTargetArrowShape string
+
+// RelationshipDefinitionMetadataStyles0TargetArrowFill The fill state of the edge’s source arrow
+type RelationshipDefinitionMetadataStyles0TargetArrowFill string
+
+// RelationshipDefinitionMetadataStyles0TargetArrowShape The shape of the edge’s source arrow
+type RelationshipDefinitionMetadataStyles0TargetArrowShape string
+
+// RelationshipDefinitionMetadataStyles0TextTransform A transformation to apply to the label text
+type RelationshipDefinitionMetadataStyles0TextTransform string
+
+// RelationshipDefinitionMetadataStyles1 Common styles for all entities
+type RelationshipDefinitionMetadataStyles1 struct {
+	// Color The color of the element's label. Colours may be specified by name (e.g. red), hex (e.g. #ff0000 or #f00), RGB (e.g. rgb(255, 0, 0)), or HSL (e.g. hsl(0, 100%, 50%)).
+	Color *string `json:"color,omitempty"`
+
+	// FontFamily A comma-separated list of font names to use on the label text.
+	FontFamily *string `json:"font-family,omitempty"`
+
+	// FontSize The size of the label text.
+	FontSize *string `json:"font-size,omitempty"`
+
+	// FontStyle A CSS font style to be applied to the label text.
+	FontStyle *string `json:"font-style,omitempty"`
+
+	// FontWeight A CSS font weight to be applied to the label text.
+	FontWeight *string `json:"font-weight,omitempty"`
+
+	// Label The text to display for an element’s label. Can give a path, e.g. data(id) will label with the elements id
+	Label *string `json:"label,omitempty"`
+
+	// Opacity The opacity of the element, ranging from 0 to 1. Note that the opacity of a compound node parent affects the effective opacity of its children.See https://js.cytoscape.org/#style/visibility
+	Opacity *float32 `json:"opacity,omitempty"`
+
+	// PrimaryColor Primary color of the component used for UI representation.
+	PrimaryColor string `json:"primaryColor"`
+
+	// SecondaryColor Secondary color of the entity used for UI representation.
+	SecondaryColor *string `json:"secondaryColor,omitempty"`
+
+	// SvgColor Colored SVG of the entity used for UI representation on light background.
+	SvgColor string `json:"svgColor"`
+
+	// SvgComplete Complete SVG of the entity used for UI representation, often inclusive of background.
+	SvgComplete *string `json:"svgComplete,omitempty"`
+
+	// SvgWhite White SVG of the entity used for UI representation on dark background.
+	SvgWhite string `json:"svgWhite"`
+
+	// TextOpacity The opacity of the label text, including its outline.
+	TextOpacity *float32 `json:"text-opacity,omitempty"`
+
+	// TextTransform A transformation to apply to the label text
+	TextTransform *RelationshipDefinitionMetadataStyles1TextTransform `json:"text-transform,omitempty"`
+
+	// ZIndex An integer value that affects the relative draw order of elements. In general, an element with a higher z-index will be drawn on top of an element with a lower z-index. Note that edges are under nodes despite z-index.
+	ZIndex *int `json:"z-index,omitempty"`
+}
+
+// RelationshipDefinitionMetadataStyles1TextTransform A transformation to apply to the label text
+type RelationshipDefinitionMetadataStyles1TextTransform string
+
+// RelationshipDefinition_Metadata_Styles defines model for RelationshipDefinition.Metadata.Styles.
+type RelationshipDefinition_Metadata_Styles struct {
+	union json.RawMessage
+}
+
+// RelationshipDefinition_Metadata Metadata contains additional information associated with the Relationship.
+type RelationshipDefinition_Metadata struct {
+	// Description Characterization of the meaning of the relationship and its relevance to both Meshery and entities under management.
+	Description *string `json:"description" yaml:"description"`
+
+	// IsAnnotation Indicates whether the relationship should be treated as a logical representation only
+	IsAnnotation         *bool                                   `json:"isAnnotation" yaml:"isAnnotation"`
+	Styles               *RelationshipDefinition_Metadata_Styles `json:"styles" yaml:"styles"`
+	AdditionalProperties map[string]interface{}                  `json:"-"`
+}
+
+// RelationshipDefinitionModelMetadataCapabilitiesEntityState A string starting with an alphanumeric character. Spaces and hyphens allowed.
+type RelationshipDefinitionModelMetadataCapabilitiesEntityState string
+
+// RelationshipDefinitionModelMetadataCapabilitiesStatus Status of the capability
+type RelationshipDefinitionModelMetadataCapabilitiesStatus string
+
+// RelationshipDefinition_Model_Metadata Metadata containing additional information associated with the model.
+type RelationshipDefinition_Model_Metadata struct {
+	// Capabilities Capabilities associated with the model
+	Capabilities *[]struct {
+		// Description A written representation of the purpose and characteristics of the capability.
+		Description *string `json:"description" yaml:"description"`
+
+		// DisplayName Name of the capability in human-readible format.
+		DisplayName string `json:"displayName" yaml:"displayName"`
+
+		// EntityState State of the entity in which the capability is applicable.
+		EntityState []RelationshipDefinitionModelMetadataCapabilitiesEntityState `json:"entityState"`
+
+		// Key Key that backs the capability.
+		Key *string `json:"key" yaml:"key"`
+
+		// Kind Top-level categorization of the capability
+		Kind string `json:"kind" yaml:"kind"`
+
+		// Metadata Metadata contains additional information associated with the capability. Extension point.
+		Metadata *map[string]interface{} `json:"metadata" yaml:"metadata"`
+
+		// SchemaVersion Specifies the version of the schema to which the capability definition conforms.
+		SchemaVersion string `json:"schemaVersion" yaml:"schemaVersion"`
+
+		// Status Status of the capability
+		Status RelationshipDefinitionModelMetadataCapabilitiesStatus `json:"status" yaml:"status"`
+
+		// SubType Most granular unit of capability classification. The combination of Kind, Type and SubType together uniquely identify a Capability.
+		SubType *string `json:"subType" yaml:"subType"`
+
+		// Type Classification of capabilities. Used to group capabilities similar in nature.
+		Type string `json:"type" yaml:"type"`
+
+		// Version Version of the capability definition.
+		Version string `json:"version" yaml:"version"`
+	} `json:"capabilities,omitempty"`
+
+	// IsAnnotation Indicates whether the model and its entities should be treated as deployable entities or as logical representations.
+	IsAnnotation *bool `json:"isAnnotation" yaml:"isAnnotation"`
+
+	// PrimaryColor Primary color associated with the model.
+	PrimaryColor *string `json:"primaryColor" yaml:"primaryColor"`
+
+	// SecondaryColor Secondary color associated with the model.
+	SecondaryColor *string `json:"secondaryColor" yaml:"secondaryColor"`
+
+	// SvgColor SVG representation of the model in colored format.
+	SvgColor *string `json:"svgColor" yaml:"svgColor"`
+
+	// SvgComplete SVG representation of the complete model.
+	SvgComplete *string `json:"svgComplete" yaml:"svgComplete"`
+
+	// SvgWhite SVG representation of the model in white color.
+	SvgWhite             *string                `json:"svgWhite" yaml:"svgWhite"`
+	AdditionalProperties map[string]interface{} `json:"-"`
+}
+
+// RelationshipDefinitionModelRegistrantStatus Connection Status
+type RelationshipDefinitionModelRegistrantStatus string
+
+// RelationshipDefinitionModelStatus Status of model, including:
+// - duplicate: this component is a duplicate of another. The component that is to be the canonical reference and that is duplicated by other components should not be assigned the 'duplicate' status.
+// - maintenance: model is unavailable for a period of time.
+// - enabled: model is available for use for all users of this Meshery Server.
+// - ignored: model is unavailable for use for all users of this Meshery Server.
+type RelationshipDefinitionModelStatus string
+
+// RelationshipDefinitionSelectorsAllowFromMatch0 defines model for .
+type RelationshipDefinitionSelectorsAllowFromMatch0 = [][]string
+
+// RelationshipDefinitionSelectorsAllowFromMatch1 defines model for .
+type RelationshipDefinitionSelectorsAllowFromMatch1 struct {
+	From *[]RelationshipDefinition_Selectors_Allow_From_Match_1_From_Item `json:"from,omitempty"`
+	To   *[]RelationshipDefinition_Selectors_Allow_From_Match_1_To_Item   `json:"to,omitempty"`
+}
+
+// RelationshipDefinitionSelectorsAllowFromMatch1From0 defines model for .
+type RelationshipDefinitionSelectorsAllowFromMatch1From0 struct {
+	// MutatorRef JSON ref to value from where patch should be applied.
+	MutatorRef *[][]string `json:"mutatorRef,omitempty"`
+}
+
+// RelationshipDefinitionSelectorsAllowFromMatch1From1 defines model for .
+type RelationshipDefinitionSelectorsAllowFromMatch1From1 struct {
+	MutatedRef *[][]string `json:"mutatedRef,omitempty"`
+}
+
+// RelationshipDefinition_Selectors_Allow_From_Match_1_From_Item defines model for RelationshipDefinition.Selectors.Allow.From.Match.1.From.Item.
+type RelationshipDefinition_Selectors_Allow_From_Match_1_From_Item struct {
+	// Id A Universally Unique Identifier used to uniquely identify entites in Meshery. The UUID core defintion is used across different schemas.
+	Id    *uuid.UUID `json:"id" yaml:"id"`
+	Kind  *string    `json:"kind,omitempty"`
+	union json.RawMessage
+}
+
+// RelationshipDefinitionSelectorsAllowFromMatch1To0 defines model for .
+type RelationshipDefinitionSelectorsAllowFromMatch1To0 struct {
+	// MutatorRef JSON ref to value from where patch should be applied.
+	MutatorRef *[][]string `json:"mutatorRef,omitempty"`
+}
+
+// RelationshipDefinitionSelectorsAllowFromMatch1To1 defines model for .
+type RelationshipDefinitionSelectorsAllowFromMatch1To1 struct {
+	MutatedRef *[][]string `json:"mutatedRef,omitempty"`
+}
+
+// RelationshipDefinition_Selectors_Allow_From_Match_1_To_Item defines model for RelationshipDefinition.Selectors.Allow.From.Match.1.To.Item.
+type RelationshipDefinition_Selectors_Allow_From_Match_1_To_Item struct {
+	// Id A Universally Unique Identifier used to uniquely identify entites in Meshery. The UUID core defintion is used across different schemas.
+	Id    *uuid.UUID `json:"id" yaml:"id"`
+	Kind  *string    `json:"kind,omitempty"`
+	union json.RawMessage
+}
+
+// RelationshipDefinition_Selectors_Allow_From_Match defines model for RelationshipDefinition.Selectors.Allow.From.Match.
+type RelationshipDefinition_Selectors_Allow_From_Match struct {
+	union json.RawMessage
+}
+
+// RelationshipDefinitionSelectorsAllowFromModelMetadataCapabilitiesEntityState A string starting with an alphanumeric character. Spaces and hyphens allowed.
+type RelationshipDefinitionSelectorsAllowFromModelMetadataCapabilitiesEntityState string
+
+// RelationshipDefinitionSelectorsAllowFromModelMetadataCapabilitiesStatus Status of the capability
+type RelationshipDefinitionSelectorsAllowFromModelMetadataCapabilitiesStatus string
+
+// RelationshipDefinition_Selectors_Allow_From_Model_Metadata Metadata containing additional information associated with the model.
+type RelationshipDefinition_Selectors_Allow_From_Model_Metadata struct {
+	// Capabilities Capabilities associated with the model
+	Capabilities *[]struct {
+		// Description A written representation of the purpose and characteristics of the capability.
+		Description *string `json:"description" yaml:"description"`
+
+		// DisplayName Name of the capability in human-readible format.
+		DisplayName string `json:"displayName" yaml:"displayName"`
+
+		// EntityState State of the entity in which the capability is applicable.
+		EntityState []RelationshipDefinitionSelectorsAllowFromModelMetadataCapabilitiesEntityState `json:"entityState"`
+
+		// Key Key that backs the capability.
+		Key *string `json:"key" yaml:"key"`
+
+		// Kind Top-level categorization of the capability
+		Kind string `json:"kind" yaml:"kind"`
+
+		// Metadata Metadata contains additional information associated with the capability. Extension point.
+		Metadata *map[string]interface{} `json:"metadata" yaml:"metadata"`
+
+		// SchemaVersion Specifies the version of the schema to which the capability definition conforms.
+		SchemaVersion string `json:"schemaVersion" yaml:"schemaVersion"`
+
+		// Status Status of the capability
+		Status RelationshipDefinitionSelectorsAllowFromModelMetadataCapabilitiesStatus `json:"status" yaml:"status"`
+
+		// SubType Most granular unit of capability classification. The combination of Kind, Type and SubType together uniquely identify a Capability.
+		SubType *string `json:"subType" yaml:"subType"`
+
+		// Type Classification of capabilities. Used to group capabilities similar in nature.
+		Type string `json:"type" yaml:"type"`
+
+		// Version Version of the capability definition.
+		Version string `json:"version" yaml:"version"`
+	} `json:"capabilities,omitempty"`
+
+	// IsAnnotation Indicates whether the model and its entities should be treated as deployable entities or as logical representations.
+	IsAnnotation *bool `json:"isAnnotation" yaml:"isAnnotation"`
+
+	// PrimaryColor Primary color associated with the model.
+	PrimaryColor *string `json:"primaryColor" yaml:"primaryColor"`
+
+	// SecondaryColor Secondary color associated with the model.
+	SecondaryColor *string `json:"secondaryColor" yaml:"secondaryColor"`
+
+	// SvgColor SVG representation of the model in colored format.
+	SvgColor *string `json:"svgColor" yaml:"svgColor"`
+
+	// SvgComplete SVG representation of the complete model.
+	SvgComplete *string `json:"svgComplete" yaml:"svgComplete"`
+
+	// SvgWhite SVG representation of the model in white color.
+	SvgWhite             *string                `json:"svgWhite" yaml:"svgWhite"`
+	AdditionalProperties map[string]interface{} `json:"-"`
+}
+
+// RelationshipDefinitionSelectorsAllowFromModelRegistrantStatus Connection Status
+type RelationshipDefinitionSelectorsAllowFromModelRegistrantStatus string
+
+// RelationshipDefinitionSelectorsAllowFromModelStatus Status of model, including:
+// - duplicate: this component is a duplicate of another. The component that is to be the canonical reference and that is duplicated by other components should not be assigned the 'duplicate' status.
+// - maintenance: model is unavailable for a period of time.
+// - enabled: model is available for use for all users of this Meshery Server.
+// - ignored: model is unavailable for use for all users of this Meshery Server.
+type RelationshipDefinitionSelectorsAllowFromModelStatus string
+
+// RelationshipDefinitionSelectorsAllowFromPatchPatchStrategy patchStrategy allows you to make specific changes to a resource using a standard JSON Patch format (RFC 6902).
+//
+// add: Inserts a value into an array or adds a member to an object.
+// replace: Replaces a value.
+// merge: Combines the values of the target location with the values from the patch. If the target location doesn't exist, it is created.
+// strategic:specific to Kubernetes and understands the structure of Kubernetes objects. It can handle complex changes like updating lists and maps, as well as preserving default values. However, it's not supported for custom resources. For custom resources, only JSON Patch and Merge Patch are typically supported.
+// remove: Removes a value.
+// copy: Copies a value from one location to another.
+// move: Moves a value from one location to another.
+// test: Tests that a value at the target location is equal to a specified value.
+type RelationshipDefinitionSelectorsAllowFromPatchPatchStrategy string
+
+// RelationshipDefinitionSelectorsAllowFromPatch0 defines model for .
+type RelationshipDefinitionSelectorsAllowFromPatch0 struct {
+	// MutatorRef JSON ref to value from where patch should be applied.
+	MutatorRef *[][]string `json:"mutatorRef,omitempty"`
+}
+
+// RelationshipDefinitionSelectorsAllowFromPatch1 defines model for .
+type RelationshipDefinitionSelectorsAllowFromPatch1 struct {
+	MutatedRef *[][]string `json:"mutatedRef,omitempty"`
+}
+
+// RelationshipDefinition_Selectors_Allow_From_Patch defines model for RelationshipDefinition.Selectors.Allow.From.Patch.
+type RelationshipDefinition_Selectors_Allow_From_Patch struct {
 	// PatchStrategy patchStrategy allows you to make specific changes to a resource using a standard JSON Patch format (RFC 6902).
 	//
 	// add: Inserts a value into an array or adds a member to an object.
@@ -334,12 +1260,137 @@ type RelationshipDefinition_Selectors_Patch struct {
 	// copy: Copies a value from one location to another.
 	// move: Moves a value from one location to another.
 	// test: Tests that a value at the target location is equal to a specified value.
-	PatchStrategy *RelationshipDefinitionSelectorsPatchStrategy `json:"patchStrategy,omitempty" yaml:"patchStrategy,omitempty"`
-	MutatorRef    *[][]string                                   `json:"mutatorRef,omitempty" yaml:"mutatorRef,omitempty"`
-	MutatedRef    *[][]string                                   `json:"mutatedRef,omitempty" yaml:"mutatedRef,omitempty"`
+	PatchStrategy *RelationshipDefinitionSelectorsAllowFromPatchPatchStrategy `json:"patchStrategy,omitempty"`
+	union         json.RawMessage
 }
 
-// RelationshipDefinitionSelectorsPatchStrategy patchStrategy allows you to make specific changes to a resource using a standard JSON Patch format (RFC 6902).
+// RelationshipDefinitionSelectorsAllowToMatch0 defines model for .
+type RelationshipDefinitionSelectorsAllowToMatch0 = [][]string
+
+// RelationshipDefinitionSelectorsAllowToMatch1 defines model for .
+type RelationshipDefinitionSelectorsAllowToMatch1 struct {
+	From *[]RelationshipDefinition_Selectors_Allow_To_Match_1_From_Item `json:"from,omitempty"`
+	To   *[]RelationshipDefinition_Selectors_Allow_To_Match_1_To_Item   `json:"to,omitempty"`
+}
+
+// RelationshipDefinitionSelectorsAllowToMatch1From0 defines model for .
+type RelationshipDefinitionSelectorsAllowToMatch1From0 struct {
+	// MutatorRef JSON ref to value from where patch should be applied.
+	MutatorRef *[][]string `json:"mutatorRef,omitempty"`
+}
+
+// RelationshipDefinitionSelectorsAllowToMatch1From1 defines model for .
+type RelationshipDefinitionSelectorsAllowToMatch1From1 struct {
+	MutatedRef *[][]string `json:"mutatedRef,omitempty"`
+}
+
+// RelationshipDefinition_Selectors_Allow_To_Match_1_From_Item defines model for RelationshipDefinition.Selectors.Allow.To.Match.1.From.Item.
+type RelationshipDefinition_Selectors_Allow_To_Match_1_From_Item struct {
+	// Id A Universally Unique Identifier used to uniquely identify entites in Meshery. The UUID core defintion is used across different schemas.
+	Id    *uuid.UUID `json:"id" yaml:"id"`
+	Kind  *string    `json:"kind,omitempty"`
+	union json.RawMessage
+}
+
+// RelationshipDefinitionSelectorsAllowToMatch1To0 defines model for .
+type RelationshipDefinitionSelectorsAllowToMatch1To0 struct {
+	// MutatorRef JSON ref to value from where patch should be applied.
+	MutatorRef *[][]string `json:"mutatorRef,omitempty"`
+}
+
+// RelationshipDefinitionSelectorsAllowToMatch1To1 defines model for .
+type RelationshipDefinitionSelectorsAllowToMatch1To1 struct {
+	MutatedRef *[][]string `json:"mutatedRef,omitempty"`
+}
+
+// RelationshipDefinition_Selectors_Allow_To_Match_1_To_Item defines model for RelationshipDefinition.Selectors.Allow.To.Match.1.To.Item.
+type RelationshipDefinition_Selectors_Allow_To_Match_1_To_Item struct {
+	// Id A Universally Unique Identifier used to uniquely identify entites in Meshery. The UUID core defintion is used across different schemas.
+	Id    *uuid.UUID `json:"id" yaml:"id"`
+	Kind  *string    `json:"kind,omitempty"`
+	union json.RawMessage
+}
+
+// RelationshipDefinition_Selectors_Allow_To_Match defines model for RelationshipDefinition.Selectors.Allow.To.Match.
+type RelationshipDefinition_Selectors_Allow_To_Match struct {
+	union json.RawMessage
+}
+
+// RelationshipDefinitionSelectorsAllowToModelMetadataCapabilitiesEntityState A string starting with an alphanumeric character. Spaces and hyphens allowed.
+type RelationshipDefinitionSelectorsAllowToModelMetadataCapabilitiesEntityState string
+
+// RelationshipDefinitionSelectorsAllowToModelMetadataCapabilitiesStatus Status of the capability
+type RelationshipDefinitionSelectorsAllowToModelMetadataCapabilitiesStatus string
+
+// RelationshipDefinition_Selectors_Allow_To_Model_Metadata Metadata containing additional information associated with the model.
+type RelationshipDefinition_Selectors_Allow_To_Model_Metadata struct {
+	// Capabilities Capabilities associated with the model
+	Capabilities *[]struct {
+		// Description A written representation of the purpose and characteristics of the capability.
+		Description *string `json:"description" yaml:"description"`
+
+		// DisplayName Name of the capability in human-readible format.
+		DisplayName string `json:"displayName" yaml:"displayName"`
+
+		// EntityState State of the entity in which the capability is applicable.
+		EntityState []RelationshipDefinitionSelectorsAllowToModelMetadataCapabilitiesEntityState `json:"entityState"`
+
+		// Key Key that backs the capability.
+		Key *string `json:"key" yaml:"key"`
+
+		// Kind Top-level categorization of the capability
+		Kind string `json:"kind" yaml:"kind"`
+
+		// Metadata Metadata contains additional information associated with the capability. Extension point.
+		Metadata *map[string]interface{} `json:"metadata" yaml:"metadata"`
+
+		// SchemaVersion Specifies the version of the schema to which the capability definition conforms.
+		SchemaVersion string `json:"schemaVersion" yaml:"schemaVersion"`
+
+		// Status Status of the capability
+		Status RelationshipDefinitionSelectorsAllowToModelMetadataCapabilitiesStatus `json:"status" yaml:"status"`
+
+		// SubType Most granular unit of capability classification. The combination of Kind, Type and SubType together uniquely identify a Capability.
+		SubType *string `json:"subType" yaml:"subType"`
+
+		// Type Classification of capabilities. Used to group capabilities similar in nature.
+		Type string `json:"type" yaml:"type"`
+
+		// Version Version of the capability definition.
+		Version string `json:"version" yaml:"version"`
+	} `json:"capabilities,omitempty"`
+
+	// IsAnnotation Indicates whether the model and its entities should be treated as deployable entities or as logical representations.
+	IsAnnotation *bool `json:"isAnnotation" yaml:"isAnnotation"`
+
+	// PrimaryColor Primary color associated with the model.
+	PrimaryColor *string `json:"primaryColor" yaml:"primaryColor"`
+
+	// SecondaryColor Secondary color associated with the model.
+	SecondaryColor *string `json:"secondaryColor" yaml:"secondaryColor"`
+
+	// SvgColor SVG representation of the model in colored format.
+	SvgColor *string `json:"svgColor" yaml:"svgColor"`
+
+	// SvgComplete SVG representation of the complete model.
+	SvgComplete *string `json:"svgComplete" yaml:"svgComplete"`
+
+	// SvgWhite SVG representation of the model in white color.
+	SvgWhite             *string                `json:"svgWhite" yaml:"svgWhite"`
+	AdditionalProperties map[string]interface{} `json:"-"`
+}
+
+// RelationshipDefinitionSelectorsAllowToModelRegistrantStatus Connection Status
+type RelationshipDefinitionSelectorsAllowToModelRegistrantStatus string
+
+// RelationshipDefinitionSelectorsAllowToModelStatus Status of model, including:
+// - duplicate: this component is a duplicate of another. The component that is to be the canonical reference and that is duplicated by other components should not be assigned the 'duplicate' status.
+// - maintenance: model is unavailable for a period of time.
+// - enabled: model is available for use for all users of this Meshery Server.
+// - ignored: model is unavailable for use for all users of this Meshery Server.
+type RelationshipDefinitionSelectorsAllowToModelStatus string
+
+// RelationshipDefinitionSelectorsAllowToPatchPatchStrategy patchStrategy allows you to make specific changes to a resource using a standard JSON Patch format (RFC 6902).
 //
 // add: Inserts a value into an array or adds a member to an object.
 // replace: Replaces a value.
@@ -349,4 +1400,2826 @@ type RelationshipDefinition_Selectors_Patch struct {
 // copy: Copies a value from one location to another.
 // move: Moves a value from one location to another.
 // test: Tests that a value at the target location is equal to a specified value.
-type RelationshipDefinitionSelectorsPatchStrategy string
+type RelationshipDefinitionSelectorsAllowToPatchPatchStrategy string
+
+// RelationshipDefinitionSelectorsAllowToPatch0 defines model for .
+type RelationshipDefinitionSelectorsAllowToPatch0 struct {
+	// MutatorRef JSON ref to value from where patch should be applied.
+	MutatorRef *[][]string `json:"mutatorRef,omitempty"`
+}
+
+// RelationshipDefinitionSelectorsAllowToPatch1 defines model for .
+type RelationshipDefinitionSelectorsAllowToPatch1 struct {
+	MutatedRef *[][]string `json:"mutatedRef,omitempty"`
+}
+
+// RelationshipDefinition_Selectors_Allow_To_Patch defines model for RelationshipDefinition.Selectors.Allow.To.Patch.
+type RelationshipDefinition_Selectors_Allow_To_Patch struct {
+	// PatchStrategy patchStrategy allows you to make specific changes to a resource using a standard JSON Patch format (RFC 6902).
+	//
+	// add: Inserts a value into an array or adds a member to an object.
+	// replace: Replaces a value.
+	// merge: Combines the values of the target location with the values from the patch. If the target location doesn't exist, it is created.
+	// strategic:specific to Kubernetes and understands the structure of Kubernetes objects. It can handle complex changes like updating lists and maps, as well as preserving default values. However, it's not supported for custom resources. For custom resources, only JSON Patch and Merge Patch are typically supported.
+	// remove: Removes a value.
+	// copy: Copies a value from one location to another.
+	// move: Moves a value from one location to another.
+	// test: Tests that a value at the target location is equal to a specified value.
+	PatchStrategy *RelationshipDefinitionSelectorsAllowToPatchPatchStrategy `json:"patchStrategy,omitempty"`
+	union         json.RawMessage
+}
+
+// RelationshipDefinitionSelectorsDenyFromMatch0 defines model for .
+type RelationshipDefinitionSelectorsDenyFromMatch0 = [][]string
+
+// RelationshipDefinitionSelectorsDenyFromMatch1 defines model for .
+type RelationshipDefinitionSelectorsDenyFromMatch1 struct {
+	From *[]RelationshipDefinition_Selectors_Deny_From_Match_1_From_Item `json:"from,omitempty"`
+	To   *[]RelationshipDefinition_Selectors_Deny_From_Match_1_To_Item   `json:"to,omitempty"`
+}
+
+// RelationshipDefinitionSelectorsDenyFromMatch1From0 defines model for .
+type RelationshipDefinitionSelectorsDenyFromMatch1From0 struct {
+	// MutatorRef JSON ref to value from where patch should be applied.
+	MutatorRef *[][]string `json:"mutatorRef,omitempty"`
+}
+
+// RelationshipDefinitionSelectorsDenyFromMatch1From1 defines model for .
+type RelationshipDefinitionSelectorsDenyFromMatch1From1 struct {
+	MutatedRef *[][]string `json:"mutatedRef,omitempty"`
+}
+
+// RelationshipDefinition_Selectors_Deny_From_Match_1_From_Item defines model for RelationshipDefinition.Selectors.Deny.From.Match.1.From.Item.
+type RelationshipDefinition_Selectors_Deny_From_Match_1_From_Item struct {
+	// Id A Universally Unique Identifier used to uniquely identify entites in Meshery. The UUID core defintion is used across different schemas.
+	Id    *uuid.UUID `json:"id" yaml:"id"`
+	Kind  *string    `json:"kind,omitempty"`
+	union json.RawMessage
+}
+
+// RelationshipDefinitionSelectorsDenyFromMatch1To0 defines model for .
+type RelationshipDefinitionSelectorsDenyFromMatch1To0 struct {
+	// MutatorRef JSON ref to value from where patch should be applied.
+	MutatorRef *[][]string `json:"mutatorRef,omitempty"`
+}
+
+// RelationshipDefinitionSelectorsDenyFromMatch1To1 defines model for .
+type RelationshipDefinitionSelectorsDenyFromMatch1To1 struct {
+	MutatedRef *[][]string `json:"mutatedRef,omitempty"`
+}
+
+// RelationshipDefinition_Selectors_Deny_From_Match_1_To_Item defines model for RelationshipDefinition.Selectors.Deny.From.Match.1.To.Item.
+type RelationshipDefinition_Selectors_Deny_From_Match_1_To_Item struct {
+	// Id A Universally Unique Identifier used to uniquely identify entites in Meshery. The UUID core defintion is used across different schemas.
+	Id    *uuid.UUID `json:"id" yaml:"id"`
+	Kind  *string    `json:"kind,omitempty"`
+	union json.RawMessage
+}
+
+// RelationshipDefinition_Selectors_Deny_From_Match defines model for RelationshipDefinition.Selectors.Deny.From.Match.
+type RelationshipDefinition_Selectors_Deny_From_Match struct {
+	union json.RawMessage
+}
+
+// RelationshipDefinitionSelectorsDenyFromModelMetadataCapabilitiesEntityState A string starting with an alphanumeric character. Spaces and hyphens allowed.
+type RelationshipDefinitionSelectorsDenyFromModelMetadataCapabilitiesEntityState string
+
+// RelationshipDefinitionSelectorsDenyFromModelMetadataCapabilitiesStatus Status of the capability
+type RelationshipDefinitionSelectorsDenyFromModelMetadataCapabilitiesStatus string
+
+// RelationshipDefinition_Selectors_Deny_From_Model_Metadata Metadata containing additional information associated with the model.
+type RelationshipDefinition_Selectors_Deny_From_Model_Metadata struct {
+	// Capabilities Capabilities associated with the model
+	Capabilities *[]struct {
+		// Description A written representation of the purpose and characteristics of the capability.
+		Description *string `json:"description" yaml:"description"`
+
+		// DisplayName Name of the capability in human-readible format.
+		DisplayName string `json:"displayName" yaml:"displayName"`
+
+		// EntityState State of the entity in which the capability is applicable.
+		EntityState []RelationshipDefinitionSelectorsDenyFromModelMetadataCapabilitiesEntityState `json:"entityState"`
+
+		// Key Key that backs the capability.
+		Key *string `json:"key" yaml:"key"`
+
+		// Kind Top-level categorization of the capability
+		Kind string `json:"kind" yaml:"kind"`
+
+		// Metadata Metadata contains additional information associated with the capability. Extension point.
+		Metadata *map[string]interface{} `json:"metadata" yaml:"metadata"`
+
+		// SchemaVersion Specifies the version of the schema to which the capability definition conforms.
+		SchemaVersion string `json:"schemaVersion" yaml:"schemaVersion"`
+
+		// Status Status of the capability
+		Status RelationshipDefinitionSelectorsDenyFromModelMetadataCapabilitiesStatus `json:"status" yaml:"status"`
+
+		// SubType Most granular unit of capability classification. The combination of Kind, Type and SubType together uniquely identify a Capability.
+		SubType *string `json:"subType" yaml:"subType"`
+
+		// Type Classification of capabilities. Used to group capabilities similar in nature.
+		Type string `json:"type" yaml:"type"`
+
+		// Version Version of the capability definition.
+		Version string `json:"version" yaml:"version"`
+	} `json:"capabilities,omitempty"`
+
+	// IsAnnotation Indicates whether the model and its entities should be treated as deployable entities or as logical representations.
+	IsAnnotation *bool `json:"isAnnotation" yaml:"isAnnotation"`
+
+	// PrimaryColor Primary color associated with the model.
+	PrimaryColor *string `json:"primaryColor" yaml:"primaryColor"`
+
+	// SecondaryColor Secondary color associated with the model.
+	SecondaryColor *string `json:"secondaryColor" yaml:"secondaryColor"`
+
+	// SvgColor SVG representation of the model in colored format.
+	SvgColor *string `json:"svgColor" yaml:"svgColor"`
+
+	// SvgComplete SVG representation of the complete model.
+	SvgComplete *string `json:"svgComplete" yaml:"svgComplete"`
+
+	// SvgWhite SVG representation of the model in white color.
+	SvgWhite             *string                `json:"svgWhite" yaml:"svgWhite"`
+	AdditionalProperties map[string]interface{} `json:"-"`
+}
+
+// RelationshipDefinitionSelectorsDenyFromModelRegistrantStatus Connection Status
+type RelationshipDefinitionSelectorsDenyFromModelRegistrantStatus string
+
+// RelationshipDefinitionSelectorsDenyFromModelStatus Status of model, including:
+// - duplicate: this component is a duplicate of another. The component that is to be the canonical reference and that is duplicated by other components should not be assigned the 'duplicate' status.
+// - maintenance: model is unavailable for a period of time.
+// - enabled: model is available for use for all users of this Meshery Server.
+// - ignored: model is unavailable for use for all users of this Meshery Server.
+type RelationshipDefinitionSelectorsDenyFromModelStatus string
+
+// RelationshipDefinitionSelectorsDenyFromPatchPatchStrategy patchStrategy allows you to make specific changes to a resource using a standard JSON Patch format (RFC 6902).
+//
+// add: Inserts a value into an array or adds a member to an object.
+// replace: Replaces a value.
+// merge: Combines the values of the target location with the values from the patch. If the target location doesn't exist, it is created.
+// strategic:specific to Kubernetes and understands the structure of Kubernetes objects. It can handle complex changes like updating lists and maps, as well as preserving default values. However, it's not supported for custom resources. For custom resources, only JSON Patch and Merge Patch are typically supported.
+// remove: Removes a value.
+// copy: Copies a value from one location to another.
+// move: Moves a value from one location to another.
+// test: Tests that a value at the target location is equal to a specified value.
+type RelationshipDefinitionSelectorsDenyFromPatchPatchStrategy string
+
+// RelationshipDefinitionSelectorsDenyFromPatch0 defines model for .
+type RelationshipDefinitionSelectorsDenyFromPatch0 struct {
+	// MutatorRef JSON ref to value from where patch should be applied.
+	MutatorRef *[][]string `json:"mutatorRef,omitempty"`
+}
+
+// RelationshipDefinitionSelectorsDenyFromPatch1 defines model for .
+type RelationshipDefinitionSelectorsDenyFromPatch1 struct {
+	MutatedRef *[][]string `json:"mutatedRef,omitempty"`
+}
+
+// RelationshipDefinition_Selectors_Deny_From_Patch defines model for RelationshipDefinition.Selectors.Deny.From.Patch.
+type RelationshipDefinition_Selectors_Deny_From_Patch struct {
+	// PatchStrategy patchStrategy allows you to make specific changes to a resource using a standard JSON Patch format (RFC 6902).
+	//
+	// add: Inserts a value into an array or adds a member to an object.
+	// replace: Replaces a value.
+	// merge: Combines the values of the target location with the values from the patch. If the target location doesn't exist, it is created.
+	// strategic:specific to Kubernetes and understands the structure of Kubernetes objects. It can handle complex changes like updating lists and maps, as well as preserving default values. However, it's not supported for custom resources. For custom resources, only JSON Patch and Merge Patch are typically supported.
+	// remove: Removes a value.
+	// copy: Copies a value from one location to another.
+	// move: Moves a value from one location to another.
+	// test: Tests that a value at the target location is equal to a specified value.
+	PatchStrategy *RelationshipDefinitionSelectorsDenyFromPatchPatchStrategy `json:"patchStrategy,omitempty"`
+	union         json.RawMessage
+}
+
+// RelationshipDefinitionSelectorsDenyToMatch0 defines model for .
+type RelationshipDefinitionSelectorsDenyToMatch0 = [][]string
+
+// RelationshipDefinitionSelectorsDenyToMatch1 defines model for .
+type RelationshipDefinitionSelectorsDenyToMatch1 struct {
+	From *[]RelationshipDefinition_Selectors_Deny_To_Match_1_From_Item `json:"from,omitempty"`
+	To   *[]RelationshipDefinition_Selectors_Deny_To_Match_1_To_Item   `json:"to,omitempty"`
+}
+
+// RelationshipDefinitionSelectorsDenyToMatch1From0 defines model for .
+type RelationshipDefinitionSelectorsDenyToMatch1From0 struct {
+	// MutatorRef JSON ref to value from where patch should be applied.
+	MutatorRef *[][]string `json:"mutatorRef,omitempty"`
+}
+
+// RelationshipDefinitionSelectorsDenyToMatch1From1 defines model for .
+type RelationshipDefinitionSelectorsDenyToMatch1From1 struct {
+	MutatedRef *[][]string `json:"mutatedRef,omitempty"`
+}
+
+// RelationshipDefinition_Selectors_Deny_To_Match_1_From_Item defines model for RelationshipDefinition.Selectors.Deny.To.Match.1.From.Item.
+type RelationshipDefinition_Selectors_Deny_To_Match_1_From_Item struct {
+	// Id A Universally Unique Identifier used to uniquely identify entites in Meshery. The UUID core defintion is used across different schemas.
+	Id    *uuid.UUID `json:"id" yaml:"id"`
+	Kind  *string    `json:"kind,omitempty"`
+	union json.RawMessage
+}
+
+// RelationshipDefinitionSelectorsDenyToMatch1To0 defines model for .
+type RelationshipDefinitionSelectorsDenyToMatch1To0 struct {
+	// MutatorRef JSON ref to value from where patch should be applied.
+	MutatorRef *[][]string `json:"mutatorRef,omitempty"`
+}
+
+// RelationshipDefinitionSelectorsDenyToMatch1To1 defines model for .
+type RelationshipDefinitionSelectorsDenyToMatch1To1 struct {
+	MutatedRef *[][]string `json:"mutatedRef,omitempty"`
+}
+
+// RelationshipDefinition_Selectors_Deny_To_Match_1_To_Item defines model for RelationshipDefinition.Selectors.Deny.To.Match.1.To.Item.
+type RelationshipDefinition_Selectors_Deny_To_Match_1_To_Item struct {
+	// Id A Universally Unique Identifier used to uniquely identify entites in Meshery. The UUID core defintion is used across different schemas.
+	Id    *uuid.UUID `json:"id" yaml:"id"`
+	Kind  *string    `json:"kind,omitempty"`
+	union json.RawMessage
+}
+
+// RelationshipDefinition_Selectors_Deny_To_Match defines model for RelationshipDefinition.Selectors.Deny.To.Match.
+type RelationshipDefinition_Selectors_Deny_To_Match struct {
+	union json.RawMessage
+}
+
+// RelationshipDefinitionSelectorsDenyToModelMetadataCapabilitiesEntityState A string starting with an alphanumeric character. Spaces and hyphens allowed.
+type RelationshipDefinitionSelectorsDenyToModelMetadataCapabilitiesEntityState string
+
+// RelationshipDefinitionSelectorsDenyToModelMetadataCapabilitiesStatus Status of the capability
+type RelationshipDefinitionSelectorsDenyToModelMetadataCapabilitiesStatus string
+
+// RelationshipDefinition_Selectors_Deny_To_Model_Metadata Metadata containing additional information associated with the model.
+type RelationshipDefinition_Selectors_Deny_To_Model_Metadata struct {
+	// Capabilities Capabilities associated with the model
+	Capabilities *[]struct {
+		// Description A written representation of the purpose and characteristics of the capability.
+		Description *string `json:"description" yaml:"description"`
+
+		// DisplayName Name of the capability in human-readible format.
+		DisplayName string `json:"displayName" yaml:"displayName"`
+
+		// EntityState State of the entity in which the capability is applicable.
+		EntityState []RelationshipDefinitionSelectorsDenyToModelMetadataCapabilitiesEntityState `json:"entityState"`
+
+		// Key Key that backs the capability.
+		Key *string `json:"key" yaml:"key"`
+
+		// Kind Top-level categorization of the capability
+		Kind string `json:"kind" yaml:"kind"`
+
+		// Metadata Metadata contains additional information associated with the capability. Extension point.
+		Metadata *map[string]interface{} `json:"metadata" yaml:"metadata"`
+
+		// SchemaVersion Specifies the version of the schema to which the capability definition conforms.
+		SchemaVersion string `json:"schemaVersion" yaml:"schemaVersion"`
+
+		// Status Status of the capability
+		Status RelationshipDefinitionSelectorsDenyToModelMetadataCapabilitiesStatus `json:"status" yaml:"status"`
+
+		// SubType Most granular unit of capability classification. The combination of Kind, Type and SubType together uniquely identify a Capability.
+		SubType *string `json:"subType" yaml:"subType"`
+
+		// Type Classification of capabilities. Used to group capabilities similar in nature.
+		Type string `json:"type" yaml:"type"`
+
+		// Version Version of the capability definition.
+		Version string `json:"version" yaml:"version"`
+	} `json:"capabilities,omitempty"`
+
+	// IsAnnotation Indicates whether the model and its entities should be treated as deployable entities or as logical representations.
+	IsAnnotation *bool `json:"isAnnotation" yaml:"isAnnotation"`
+
+	// PrimaryColor Primary color associated with the model.
+	PrimaryColor *string `json:"primaryColor" yaml:"primaryColor"`
+
+	// SecondaryColor Secondary color associated with the model.
+	SecondaryColor *string `json:"secondaryColor" yaml:"secondaryColor"`
+
+	// SvgColor SVG representation of the model in colored format.
+	SvgColor *string `json:"svgColor" yaml:"svgColor"`
+
+	// SvgComplete SVG representation of the complete model.
+	SvgComplete *string `json:"svgComplete" yaml:"svgComplete"`
+
+	// SvgWhite SVG representation of the model in white color.
+	SvgWhite             *string                `json:"svgWhite" yaml:"svgWhite"`
+	AdditionalProperties map[string]interface{} `json:"-"`
+}
+
+// RelationshipDefinitionSelectorsDenyToModelRegistrantStatus Connection Status
+type RelationshipDefinitionSelectorsDenyToModelRegistrantStatus string
+
+// RelationshipDefinitionSelectorsDenyToModelStatus Status of model, including:
+// - duplicate: this component is a duplicate of another. The component that is to be the canonical reference and that is duplicated by other components should not be assigned the 'duplicate' status.
+// - maintenance: model is unavailable for a period of time.
+// - enabled: model is available for use for all users of this Meshery Server.
+// - ignored: model is unavailable for use for all users of this Meshery Server.
+type RelationshipDefinitionSelectorsDenyToModelStatus string
+
+// RelationshipDefinitionSelectorsDenyToPatchPatchStrategy patchStrategy allows you to make specific changes to a resource using a standard JSON Patch format (RFC 6902).
+//
+// add: Inserts a value into an array or adds a member to an object.
+// replace: Replaces a value.
+// merge: Combines the values of the target location with the values from the patch. If the target location doesn't exist, it is created.
+// strategic:specific to Kubernetes and understands the structure of Kubernetes objects. It can handle complex changes like updating lists and maps, as well as preserving default values. However, it's not supported for custom resources. For custom resources, only JSON Patch and Merge Patch are typically supported.
+// remove: Removes a value.
+// copy: Copies a value from one location to another.
+// move: Moves a value from one location to another.
+// test: Tests that a value at the target location is equal to a specified value.
+type RelationshipDefinitionSelectorsDenyToPatchPatchStrategy string
+
+// RelationshipDefinitionSelectorsDenyToPatch0 defines model for .
+type RelationshipDefinitionSelectorsDenyToPatch0 struct {
+	// MutatorRef JSON ref to value from where patch should be applied.
+	MutatorRef *[][]string `json:"mutatorRef,omitempty"`
+}
+
+// RelationshipDefinitionSelectorsDenyToPatch1 defines model for .
+type RelationshipDefinitionSelectorsDenyToPatch1 struct {
+	MutatedRef *[][]string `json:"mutatedRef,omitempty"`
+}
+
+// RelationshipDefinition_Selectors_Deny_To_Patch defines model for RelationshipDefinition.Selectors.Deny.To.Patch.
+type RelationshipDefinition_Selectors_Deny_To_Patch struct {
+	// PatchStrategy patchStrategy allows you to make specific changes to a resource using a standard JSON Patch format (RFC 6902).
+	//
+	// add: Inserts a value into an array or adds a member to an object.
+	// replace: Replaces a value.
+	// merge: Combines the values of the target location with the values from the patch. If the target location doesn't exist, it is created.
+	// strategic:specific to Kubernetes and understands the structure of Kubernetes objects. It can handle complex changes like updating lists and maps, as well as preserving default values. However, it's not supported for custom resources. For custom resources, only JSON Patch and Merge Patch are typically supported.
+	// remove: Removes a value.
+	// copy: Copies a value from one location to another.
+	// move: Moves a value from one location to another.
+	// test: Tests that a value at the target location is equal to a specified value.
+	PatchStrategy *RelationshipDefinitionSelectorsDenyToPatchPatchStrategy `json:"patchStrategy,omitempty"`
+	union         json.RawMessage
+}
+
+// RelationshipDefinitionStatus Status of the relationship.
+type RelationshipDefinitionStatus string
+
+// Getter for additional properties for RelationshipDefinition_Metadata. Returns the specified
+// element and whether it was found
+func (a RelationshipDefinition_Metadata) Get(fieldName string) (value interface{}, found bool) {
+	if a.AdditionalProperties != nil {
+		value, found = a.AdditionalProperties[fieldName]
+	}
+	return
+}
+
+// Setter for additional properties for RelationshipDefinition_Metadata
+func (a *RelationshipDefinition_Metadata) Set(fieldName string, value interface{}) {
+	if a.AdditionalProperties == nil {
+		a.AdditionalProperties = make(map[string]interface{})
+	}
+	a.AdditionalProperties[fieldName] = value
+}
+
+// Override default JSON handling for RelationshipDefinition_Metadata to handle AdditionalProperties
+func (a *RelationshipDefinition_Metadata) UnmarshalJSON(b []byte) error {
+	object := make(map[string]json.RawMessage)
+	err := json.Unmarshal(b, &object)
+	if err != nil {
+		return err
+	}
+
+	if raw, found := object["description"]; found {
+		err = json.Unmarshal(raw, &a.Description)
+		if err != nil {
+			return fmt.Errorf("error reading 'description': %w", err)
+		}
+		delete(object, "description")
+	}
+
+	if raw, found := object["isAnnotation"]; found {
+		err = json.Unmarshal(raw, &a.IsAnnotation)
+		if err != nil {
+			return fmt.Errorf("error reading 'isAnnotation': %w", err)
+		}
+		delete(object, "isAnnotation")
+	}
+
+	if raw, found := object["styles"]; found {
+		err = json.Unmarshal(raw, &a.Styles)
+		if err != nil {
+			return fmt.Errorf("error reading 'styles': %w", err)
+		}
+		delete(object, "styles")
+	}
+
+	if len(object) != 0 {
+		a.AdditionalProperties = make(map[string]interface{})
+		for fieldName, fieldBuf := range object {
+			var fieldVal interface{}
+			err := json.Unmarshal(fieldBuf, &fieldVal)
+			if err != nil {
+				return fmt.Errorf("error unmarshaling field %s: %w", fieldName, err)
+			}
+			a.AdditionalProperties[fieldName] = fieldVal
+		}
+	}
+	return nil
+}
+
+// Override default JSON handling for RelationshipDefinition_Metadata to handle AdditionalProperties
+func (a RelationshipDefinition_Metadata) MarshalJSON() ([]byte, error) {
+	var err error
+	object := make(map[string]json.RawMessage)
+
+	if a.Description != nil {
+		object["description"], err = json.Marshal(a.Description)
+		if err != nil {
+			return nil, fmt.Errorf("error marshaling 'description': %w", err)
+		}
+	}
+
+	if a.IsAnnotation != nil {
+		object["isAnnotation"], err = json.Marshal(a.IsAnnotation)
+		if err != nil {
+			return nil, fmt.Errorf("error marshaling 'isAnnotation': %w", err)
+		}
+	}
+
+	if a.Styles != nil {
+		object["styles"], err = json.Marshal(a.Styles)
+		if err != nil {
+			return nil, fmt.Errorf("error marshaling 'styles': %w", err)
+		}
+	}
+
+	for fieldName, field := range a.AdditionalProperties {
+		object[fieldName], err = json.Marshal(field)
+		if err != nil {
+			return nil, fmt.Errorf("error marshaling '%s': %w", fieldName, err)
+		}
+	}
+	return json.Marshal(object)
+}
+
+// Getter for additional properties for RelationshipDefinition_Model_Metadata. Returns the specified
+// element and whether it was found
+func (a RelationshipDefinition_Model_Metadata) Get(fieldName string) (value interface{}, found bool) {
+	if a.AdditionalProperties != nil {
+		value, found = a.AdditionalProperties[fieldName]
+	}
+	return
+}
+
+// Setter for additional properties for RelationshipDefinition_Model_Metadata
+func (a *RelationshipDefinition_Model_Metadata) Set(fieldName string, value interface{}) {
+	if a.AdditionalProperties == nil {
+		a.AdditionalProperties = make(map[string]interface{})
+	}
+	a.AdditionalProperties[fieldName] = value
+}
+
+// Override default JSON handling for RelationshipDefinition_Model_Metadata to handle AdditionalProperties
+func (a *RelationshipDefinition_Model_Metadata) UnmarshalJSON(b []byte) error {
+	object := make(map[string]json.RawMessage)
+	err := json.Unmarshal(b, &object)
+	if err != nil {
+		return err
+	}
+
+	if raw, found := object["capabilities"]; found {
+		err = json.Unmarshal(raw, &a.Capabilities)
+		if err != nil {
+			return fmt.Errorf("error reading 'capabilities': %w", err)
+		}
+		delete(object, "capabilities")
+	}
+
+	if raw, found := object["isAnnotation"]; found {
+		err = json.Unmarshal(raw, &a.IsAnnotation)
+		if err != nil {
+			return fmt.Errorf("error reading 'isAnnotation': %w", err)
+		}
+		delete(object, "isAnnotation")
+	}
+
+	if raw, found := object["primaryColor"]; found {
+		err = json.Unmarshal(raw, &a.PrimaryColor)
+		if err != nil {
+			return fmt.Errorf("error reading 'primaryColor': %w", err)
+		}
+		delete(object, "primaryColor")
+	}
+
+	if raw, found := object["secondaryColor"]; found {
+		err = json.Unmarshal(raw, &a.SecondaryColor)
+		if err != nil {
+			return fmt.Errorf("error reading 'secondaryColor': %w", err)
+		}
+		delete(object, "secondaryColor")
+	}
+
+	if raw, found := object["svgColor"]; found {
+		err = json.Unmarshal(raw, &a.SvgColor)
+		if err != nil {
+			return fmt.Errorf("error reading 'svgColor': %w", err)
+		}
+		delete(object, "svgColor")
+	}
+
+	if raw, found := object["svgComplete"]; found {
+		err = json.Unmarshal(raw, &a.SvgComplete)
+		if err != nil {
+			return fmt.Errorf("error reading 'svgComplete': %w", err)
+		}
+		delete(object, "svgComplete")
+	}
+
+	if raw, found := object["svgWhite"]; found {
+		err = json.Unmarshal(raw, &a.SvgWhite)
+		if err != nil {
+			return fmt.Errorf("error reading 'svgWhite': %w", err)
+		}
+		delete(object, "svgWhite")
+	}
+
+	if len(object) != 0 {
+		a.AdditionalProperties = make(map[string]interface{})
+		for fieldName, fieldBuf := range object {
+			var fieldVal interface{}
+			err := json.Unmarshal(fieldBuf, &fieldVal)
+			if err != nil {
+				return fmt.Errorf("error unmarshaling field %s: %w", fieldName, err)
+			}
+			a.AdditionalProperties[fieldName] = fieldVal
+		}
+	}
+	return nil
+}
+
+// Override default JSON handling for RelationshipDefinition_Model_Metadata to handle AdditionalProperties
+func (a RelationshipDefinition_Model_Metadata) MarshalJSON() ([]byte, error) {
+	var err error
+	object := make(map[string]json.RawMessage)
+
+	if a.Capabilities != nil {
+		object["capabilities"], err = json.Marshal(a.Capabilities)
+		if err != nil {
+			return nil, fmt.Errorf("error marshaling 'capabilities': %w", err)
+		}
+	}
+
+	if a.IsAnnotation != nil {
+		object["isAnnotation"], err = json.Marshal(a.IsAnnotation)
+		if err != nil {
+			return nil, fmt.Errorf("error marshaling 'isAnnotation': %w", err)
+		}
+	}
+
+	if a.PrimaryColor != nil {
+		object["primaryColor"], err = json.Marshal(a.PrimaryColor)
+		if err != nil {
+			return nil, fmt.Errorf("error marshaling 'primaryColor': %w", err)
+		}
+	}
+
+	if a.SecondaryColor != nil {
+		object["secondaryColor"], err = json.Marshal(a.SecondaryColor)
+		if err != nil {
+			return nil, fmt.Errorf("error marshaling 'secondaryColor': %w", err)
+		}
+	}
+
+	if a.SvgColor != nil {
+		object["svgColor"], err = json.Marshal(a.SvgColor)
+		if err != nil {
+			return nil, fmt.Errorf("error marshaling 'svgColor': %w", err)
+		}
+	}
+
+	if a.SvgComplete != nil {
+		object["svgComplete"], err = json.Marshal(a.SvgComplete)
+		if err != nil {
+			return nil, fmt.Errorf("error marshaling 'svgComplete': %w", err)
+		}
+	}
+
+	if a.SvgWhite != nil {
+		object["svgWhite"], err = json.Marshal(a.SvgWhite)
+		if err != nil {
+			return nil, fmt.Errorf("error marshaling 'svgWhite': %w", err)
+		}
+	}
+
+	for fieldName, field := range a.AdditionalProperties {
+		object[fieldName], err = json.Marshal(field)
+		if err != nil {
+			return nil, fmt.Errorf("error marshaling '%s': %w", fieldName, err)
+		}
+	}
+	return json.Marshal(object)
+}
+
+// Getter for additional properties for RelationshipDefinition_Selectors_Allow_From_Model_Metadata. Returns the specified
+// element and whether it was found
+func (a RelationshipDefinition_Selectors_Allow_From_Model_Metadata) Get(fieldName string) (value interface{}, found bool) {
+	if a.AdditionalProperties != nil {
+		value, found = a.AdditionalProperties[fieldName]
+	}
+	return
+}
+
+// Setter for additional properties for RelationshipDefinition_Selectors_Allow_From_Model_Metadata
+func (a *RelationshipDefinition_Selectors_Allow_From_Model_Metadata) Set(fieldName string, value interface{}) {
+	if a.AdditionalProperties == nil {
+		a.AdditionalProperties = make(map[string]interface{})
+	}
+	a.AdditionalProperties[fieldName] = value
+}
+
+// Override default JSON handling for RelationshipDefinition_Selectors_Allow_From_Model_Metadata to handle AdditionalProperties
+func (a *RelationshipDefinition_Selectors_Allow_From_Model_Metadata) UnmarshalJSON(b []byte) error {
+	object := make(map[string]json.RawMessage)
+	err := json.Unmarshal(b, &object)
+	if err != nil {
+		return err
+	}
+
+	if raw, found := object["capabilities"]; found {
+		err = json.Unmarshal(raw, &a.Capabilities)
+		if err != nil {
+			return fmt.Errorf("error reading 'capabilities': %w", err)
+		}
+		delete(object, "capabilities")
+	}
+
+	if raw, found := object["isAnnotation"]; found {
+		err = json.Unmarshal(raw, &a.IsAnnotation)
+		if err != nil {
+			return fmt.Errorf("error reading 'isAnnotation': %w", err)
+		}
+		delete(object, "isAnnotation")
+	}
+
+	if raw, found := object["primaryColor"]; found {
+		err = json.Unmarshal(raw, &a.PrimaryColor)
+		if err != nil {
+			return fmt.Errorf("error reading 'primaryColor': %w", err)
+		}
+		delete(object, "primaryColor")
+	}
+
+	if raw, found := object["secondaryColor"]; found {
+		err = json.Unmarshal(raw, &a.SecondaryColor)
+		if err != nil {
+			return fmt.Errorf("error reading 'secondaryColor': %w", err)
+		}
+		delete(object, "secondaryColor")
+	}
+
+	if raw, found := object["svgColor"]; found {
+		err = json.Unmarshal(raw, &a.SvgColor)
+		if err != nil {
+			return fmt.Errorf("error reading 'svgColor': %w", err)
+		}
+		delete(object, "svgColor")
+	}
+
+	if raw, found := object["svgComplete"]; found {
+		err = json.Unmarshal(raw, &a.SvgComplete)
+		if err != nil {
+			return fmt.Errorf("error reading 'svgComplete': %w", err)
+		}
+		delete(object, "svgComplete")
+	}
+
+	if raw, found := object["svgWhite"]; found {
+		err = json.Unmarshal(raw, &a.SvgWhite)
+		if err != nil {
+			return fmt.Errorf("error reading 'svgWhite': %w", err)
+		}
+		delete(object, "svgWhite")
+	}
+
+	if len(object) != 0 {
+		a.AdditionalProperties = make(map[string]interface{})
+		for fieldName, fieldBuf := range object {
+			var fieldVal interface{}
+			err := json.Unmarshal(fieldBuf, &fieldVal)
+			if err != nil {
+				return fmt.Errorf("error unmarshaling field %s: %w", fieldName, err)
+			}
+			a.AdditionalProperties[fieldName] = fieldVal
+		}
+	}
+	return nil
+}
+
+// Override default JSON handling for RelationshipDefinition_Selectors_Allow_From_Model_Metadata to handle AdditionalProperties
+func (a RelationshipDefinition_Selectors_Allow_From_Model_Metadata) MarshalJSON() ([]byte, error) {
+	var err error
+	object := make(map[string]json.RawMessage)
+
+	if a.Capabilities != nil {
+		object["capabilities"], err = json.Marshal(a.Capabilities)
+		if err != nil {
+			return nil, fmt.Errorf("error marshaling 'capabilities': %w", err)
+		}
+	}
+
+	if a.IsAnnotation != nil {
+		object["isAnnotation"], err = json.Marshal(a.IsAnnotation)
+		if err != nil {
+			return nil, fmt.Errorf("error marshaling 'isAnnotation': %w", err)
+		}
+	}
+
+	if a.PrimaryColor != nil {
+		object["primaryColor"], err = json.Marshal(a.PrimaryColor)
+		if err != nil {
+			return nil, fmt.Errorf("error marshaling 'primaryColor': %w", err)
+		}
+	}
+
+	if a.SecondaryColor != nil {
+		object["secondaryColor"], err = json.Marshal(a.SecondaryColor)
+		if err != nil {
+			return nil, fmt.Errorf("error marshaling 'secondaryColor': %w", err)
+		}
+	}
+
+	if a.SvgColor != nil {
+		object["svgColor"], err = json.Marshal(a.SvgColor)
+		if err != nil {
+			return nil, fmt.Errorf("error marshaling 'svgColor': %w", err)
+		}
+	}
+
+	if a.SvgComplete != nil {
+		object["svgComplete"], err = json.Marshal(a.SvgComplete)
+		if err != nil {
+			return nil, fmt.Errorf("error marshaling 'svgComplete': %w", err)
+		}
+	}
+
+	if a.SvgWhite != nil {
+		object["svgWhite"], err = json.Marshal(a.SvgWhite)
+		if err != nil {
+			return nil, fmt.Errorf("error marshaling 'svgWhite': %w", err)
+		}
+	}
+
+	for fieldName, field := range a.AdditionalProperties {
+		object[fieldName], err = json.Marshal(field)
+		if err != nil {
+			return nil, fmt.Errorf("error marshaling '%s': %w", fieldName, err)
+		}
+	}
+	return json.Marshal(object)
+}
+
+// Getter for additional properties for RelationshipDefinition_Selectors_Allow_To_Model_Metadata. Returns the specified
+// element and whether it was found
+func (a RelationshipDefinition_Selectors_Allow_To_Model_Metadata) Get(fieldName string) (value interface{}, found bool) {
+	if a.AdditionalProperties != nil {
+		value, found = a.AdditionalProperties[fieldName]
+	}
+	return
+}
+
+// Setter for additional properties for RelationshipDefinition_Selectors_Allow_To_Model_Metadata
+func (a *RelationshipDefinition_Selectors_Allow_To_Model_Metadata) Set(fieldName string, value interface{}) {
+	if a.AdditionalProperties == nil {
+		a.AdditionalProperties = make(map[string]interface{})
+	}
+	a.AdditionalProperties[fieldName] = value
+}
+
+// Override default JSON handling for RelationshipDefinition_Selectors_Allow_To_Model_Metadata to handle AdditionalProperties
+func (a *RelationshipDefinition_Selectors_Allow_To_Model_Metadata) UnmarshalJSON(b []byte) error {
+	object := make(map[string]json.RawMessage)
+	err := json.Unmarshal(b, &object)
+	if err != nil {
+		return err
+	}
+
+	if raw, found := object["capabilities"]; found {
+		err = json.Unmarshal(raw, &a.Capabilities)
+		if err != nil {
+			return fmt.Errorf("error reading 'capabilities': %w", err)
+		}
+		delete(object, "capabilities")
+	}
+
+	if raw, found := object["isAnnotation"]; found {
+		err = json.Unmarshal(raw, &a.IsAnnotation)
+		if err != nil {
+			return fmt.Errorf("error reading 'isAnnotation': %w", err)
+		}
+		delete(object, "isAnnotation")
+	}
+
+	if raw, found := object["primaryColor"]; found {
+		err = json.Unmarshal(raw, &a.PrimaryColor)
+		if err != nil {
+			return fmt.Errorf("error reading 'primaryColor': %w", err)
+		}
+		delete(object, "primaryColor")
+	}
+
+	if raw, found := object["secondaryColor"]; found {
+		err = json.Unmarshal(raw, &a.SecondaryColor)
+		if err != nil {
+			return fmt.Errorf("error reading 'secondaryColor': %w", err)
+		}
+		delete(object, "secondaryColor")
+	}
+
+	if raw, found := object["svgColor"]; found {
+		err = json.Unmarshal(raw, &a.SvgColor)
+		if err != nil {
+			return fmt.Errorf("error reading 'svgColor': %w", err)
+		}
+		delete(object, "svgColor")
+	}
+
+	if raw, found := object["svgComplete"]; found {
+		err = json.Unmarshal(raw, &a.SvgComplete)
+		if err != nil {
+			return fmt.Errorf("error reading 'svgComplete': %w", err)
+		}
+		delete(object, "svgComplete")
+	}
+
+	if raw, found := object["svgWhite"]; found {
+		err = json.Unmarshal(raw, &a.SvgWhite)
+		if err != nil {
+			return fmt.Errorf("error reading 'svgWhite': %w", err)
+		}
+		delete(object, "svgWhite")
+	}
+
+	if len(object) != 0 {
+		a.AdditionalProperties = make(map[string]interface{})
+		for fieldName, fieldBuf := range object {
+			var fieldVal interface{}
+			err := json.Unmarshal(fieldBuf, &fieldVal)
+			if err != nil {
+				return fmt.Errorf("error unmarshaling field %s: %w", fieldName, err)
+			}
+			a.AdditionalProperties[fieldName] = fieldVal
+		}
+	}
+	return nil
+}
+
+// Override default JSON handling for RelationshipDefinition_Selectors_Allow_To_Model_Metadata to handle AdditionalProperties
+func (a RelationshipDefinition_Selectors_Allow_To_Model_Metadata) MarshalJSON() ([]byte, error) {
+	var err error
+	object := make(map[string]json.RawMessage)
+
+	if a.Capabilities != nil {
+		object["capabilities"], err = json.Marshal(a.Capabilities)
+		if err != nil {
+			return nil, fmt.Errorf("error marshaling 'capabilities': %w", err)
+		}
+	}
+
+	if a.IsAnnotation != nil {
+		object["isAnnotation"], err = json.Marshal(a.IsAnnotation)
+		if err != nil {
+			return nil, fmt.Errorf("error marshaling 'isAnnotation': %w", err)
+		}
+	}
+
+	if a.PrimaryColor != nil {
+		object["primaryColor"], err = json.Marshal(a.PrimaryColor)
+		if err != nil {
+			return nil, fmt.Errorf("error marshaling 'primaryColor': %w", err)
+		}
+	}
+
+	if a.SecondaryColor != nil {
+		object["secondaryColor"], err = json.Marshal(a.SecondaryColor)
+		if err != nil {
+			return nil, fmt.Errorf("error marshaling 'secondaryColor': %w", err)
+		}
+	}
+
+	if a.SvgColor != nil {
+		object["svgColor"], err = json.Marshal(a.SvgColor)
+		if err != nil {
+			return nil, fmt.Errorf("error marshaling 'svgColor': %w", err)
+		}
+	}
+
+	if a.SvgComplete != nil {
+		object["svgComplete"], err = json.Marshal(a.SvgComplete)
+		if err != nil {
+			return nil, fmt.Errorf("error marshaling 'svgComplete': %w", err)
+		}
+	}
+
+	if a.SvgWhite != nil {
+		object["svgWhite"], err = json.Marshal(a.SvgWhite)
+		if err != nil {
+			return nil, fmt.Errorf("error marshaling 'svgWhite': %w", err)
+		}
+	}
+
+	for fieldName, field := range a.AdditionalProperties {
+		object[fieldName], err = json.Marshal(field)
+		if err != nil {
+			return nil, fmt.Errorf("error marshaling '%s': %w", fieldName, err)
+		}
+	}
+	return json.Marshal(object)
+}
+
+// Getter for additional properties for RelationshipDefinition_Selectors_Deny_From_Model_Metadata. Returns the specified
+// element and whether it was found
+func (a RelationshipDefinition_Selectors_Deny_From_Model_Metadata) Get(fieldName string) (value interface{}, found bool) {
+	if a.AdditionalProperties != nil {
+		value, found = a.AdditionalProperties[fieldName]
+	}
+	return
+}
+
+// Setter for additional properties for RelationshipDefinition_Selectors_Deny_From_Model_Metadata
+func (a *RelationshipDefinition_Selectors_Deny_From_Model_Metadata) Set(fieldName string, value interface{}) {
+	if a.AdditionalProperties == nil {
+		a.AdditionalProperties = make(map[string]interface{})
+	}
+	a.AdditionalProperties[fieldName] = value
+}
+
+// Override default JSON handling for RelationshipDefinition_Selectors_Deny_From_Model_Metadata to handle AdditionalProperties
+func (a *RelationshipDefinition_Selectors_Deny_From_Model_Metadata) UnmarshalJSON(b []byte) error {
+	object := make(map[string]json.RawMessage)
+	err := json.Unmarshal(b, &object)
+	if err != nil {
+		return err
+	}
+
+	if raw, found := object["capabilities"]; found {
+		err = json.Unmarshal(raw, &a.Capabilities)
+		if err != nil {
+			return fmt.Errorf("error reading 'capabilities': %w", err)
+		}
+		delete(object, "capabilities")
+	}
+
+	if raw, found := object["isAnnotation"]; found {
+		err = json.Unmarshal(raw, &a.IsAnnotation)
+		if err != nil {
+			return fmt.Errorf("error reading 'isAnnotation': %w", err)
+		}
+		delete(object, "isAnnotation")
+	}
+
+	if raw, found := object["primaryColor"]; found {
+		err = json.Unmarshal(raw, &a.PrimaryColor)
+		if err != nil {
+			return fmt.Errorf("error reading 'primaryColor': %w", err)
+		}
+		delete(object, "primaryColor")
+	}
+
+	if raw, found := object["secondaryColor"]; found {
+		err = json.Unmarshal(raw, &a.SecondaryColor)
+		if err != nil {
+			return fmt.Errorf("error reading 'secondaryColor': %w", err)
+		}
+		delete(object, "secondaryColor")
+	}
+
+	if raw, found := object["svgColor"]; found {
+		err = json.Unmarshal(raw, &a.SvgColor)
+		if err != nil {
+			return fmt.Errorf("error reading 'svgColor': %w", err)
+		}
+		delete(object, "svgColor")
+	}
+
+	if raw, found := object["svgComplete"]; found {
+		err = json.Unmarshal(raw, &a.SvgComplete)
+		if err != nil {
+			return fmt.Errorf("error reading 'svgComplete': %w", err)
+		}
+		delete(object, "svgComplete")
+	}
+
+	if raw, found := object["svgWhite"]; found {
+		err = json.Unmarshal(raw, &a.SvgWhite)
+		if err != nil {
+			return fmt.Errorf("error reading 'svgWhite': %w", err)
+		}
+		delete(object, "svgWhite")
+	}
+
+	if len(object) != 0 {
+		a.AdditionalProperties = make(map[string]interface{})
+		for fieldName, fieldBuf := range object {
+			var fieldVal interface{}
+			err := json.Unmarshal(fieldBuf, &fieldVal)
+			if err != nil {
+				return fmt.Errorf("error unmarshaling field %s: %w", fieldName, err)
+			}
+			a.AdditionalProperties[fieldName] = fieldVal
+		}
+	}
+	return nil
+}
+
+// Override default JSON handling for RelationshipDefinition_Selectors_Deny_From_Model_Metadata to handle AdditionalProperties
+func (a RelationshipDefinition_Selectors_Deny_From_Model_Metadata) MarshalJSON() ([]byte, error) {
+	var err error
+	object := make(map[string]json.RawMessage)
+
+	if a.Capabilities != nil {
+		object["capabilities"], err = json.Marshal(a.Capabilities)
+		if err != nil {
+			return nil, fmt.Errorf("error marshaling 'capabilities': %w", err)
+		}
+	}
+
+	if a.IsAnnotation != nil {
+		object["isAnnotation"], err = json.Marshal(a.IsAnnotation)
+		if err != nil {
+			return nil, fmt.Errorf("error marshaling 'isAnnotation': %w", err)
+		}
+	}
+
+	if a.PrimaryColor != nil {
+		object["primaryColor"], err = json.Marshal(a.PrimaryColor)
+		if err != nil {
+			return nil, fmt.Errorf("error marshaling 'primaryColor': %w", err)
+		}
+	}
+
+	if a.SecondaryColor != nil {
+		object["secondaryColor"], err = json.Marshal(a.SecondaryColor)
+		if err != nil {
+			return nil, fmt.Errorf("error marshaling 'secondaryColor': %w", err)
+		}
+	}
+
+	if a.SvgColor != nil {
+		object["svgColor"], err = json.Marshal(a.SvgColor)
+		if err != nil {
+			return nil, fmt.Errorf("error marshaling 'svgColor': %w", err)
+		}
+	}
+
+	if a.SvgComplete != nil {
+		object["svgComplete"], err = json.Marshal(a.SvgComplete)
+		if err != nil {
+			return nil, fmt.Errorf("error marshaling 'svgComplete': %w", err)
+		}
+	}
+
+	if a.SvgWhite != nil {
+		object["svgWhite"], err = json.Marshal(a.SvgWhite)
+		if err != nil {
+			return nil, fmt.Errorf("error marshaling 'svgWhite': %w", err)
+		}
+	}
+
+	for fieldName, field := range a.AdditionalProperties {
+		object[fieldName], err = json.Marshal(field)
+		if err != nil {
+			return nil, fmt.Errorf("error marshaling '%s': %w", fieldName, err)
+		}
+	}
+	return json.Marshal(object)
+}
+
+// Getter for additional properties for RelationshipDefinition_Selectors_Deny_To_Model_Metadata. Returns the specified
+// element and whether it was found
+func (a RelationshipDefinition_Selectors_Deny_To_Model_Metadata) Get(fieldName string) (value interface{}, found bool) {
+	if a.AdditionalProperties != nil {
+		value, found = a.AdditionalProperties[fieldName]
+	}
+	return
+}
+
+// Setter for additional properties for RelationshipDefinition_Selectors_Deny_To_Model_Metadata
+func (a *RelationshipDefinition_Selectors_Deny_To_Model_Metadata) Set(fieldName string, value interface{}) {
+	if a.AdditionalProperties == nil {
+		a.AdditionalProperties = make(map[string]interface{})
+	}
+	a.AdditionalProperties[fieldName] = value
+}
+
+// Override default JSON handling for RelationshipDefinition_Selectors_Deny_To_Model_Metadata to handle AdditionalProperties
+func (a *RelationshipDefinition_Selectors_Deny_To_Model_Metadata) UnmarshalJSON(b []byte) error {
+	object := make(map[string]json.RawMessage)
+	err := json.Unmarshal(b, &object)
+	if err != nil {
+		return err
+	}
+
+	if raw, found := object["capabilities"]; found {
+		err = json.Unmarshal(raw, &a.Capabilities)
+		if err != nil {
+			return fmt.Errorf("error reading 'capabilities': %w", err)
+		}
+		delete(object, "capabilities")
+	}
+
+	if raw, found := object["isAnnotation"]; found {
+		err = json.Unmarshal(raw, &a.IsAnnotation)
+		if err != nil {
+			return fmt.Errorf("error reading 'isAnnotation': %w", err)
+		}
+		delete(object, "isAnnotation")
+	}
+
+	if raw, found := object["primaryColor"]; found {
+		err = json.Unmarshal(raw, &a.PrimaryColor)
+		if err != nil {
+			return fmt.Errorf("error reading 'primaryColor': %w", err)
+		}
+		delete(object, "primaryColor")
+	}
+
+	if raw, found := object["secondaryColor"]; found {
+		err = json.Unmarshal(raw, &a.SecondaryColor)
+		if err != nil {
+			return fmt.Errorf("error reading 'secondaryColor': %w", err)
+		}
+		delete(object, "secondaryColor")
+	}
+
+	if raw, found := object["svgColor"]; found {
+		err = json.Unmarshal(raw, &a.SvgColor)
+		if err != nil {
+			return fmt.Errorf("error reading 'svgColor': %w", err)
+		}
+		delete(object, "svgColor")
+	}
+
+	if raw, found := object["svgComplete"]; found {
+		err = json.Unmarshal(raw, &a.SvgComplete)
+		if err != nil {
+			return fmt.Errorf("error reading 'svgComplete': %w", err)
+		}
+		delete(object, "svgComplete")
+	}
+
+	if raw, found := object["svgWhite"]; found {
+		err = json.Unmarshal(raw, &a.SvgWhite)
+		if err != nil {
+			return fmt.Errorf("error reading 'svgWhite': %w", err)
+		}
+		delete(object, "svgWhite")
+	}
+
+	if len(object) != 0 {
+		a.AdditionalProperties = make(map[string]interface{})
+		for fieldName, fieldBuf := range object {
+			var fieldVal interface{}
+			err := json.Unmarshal(fieldBuf, &fieldVal)
+			if err != nil {
+				return fmt.Errorf("error unmarshaling field %s: %w", fieldName, err)
+			}
+			a.AdditionalProperties[fieldName] = fieldVal
+		}
+	}
+	return nil
+}
+
+// Override default JSON handling for RelationshipDefinition_Selectors_Deny_To_Model_Metadata to handle AdditionalProperties
+func (a RelationshipDefinition_Selectors_Deny_To_Model_Metadata) MarshalJSON() ([]byte, error) {
+	var err error
+	object := make(map[string]json.RawMessage)
+
+	if a.Capabilities != nil {
+		object["capabilities"], err = json.Marshal(a.Capabilities)
+		if err != nil {
+			return nil, fmt.Errorf("error marshaling 'capabilities': %w", err)
+		}
+	}
+
+	if a.IsAnnotation != nil {
+		object["isAnnotation"], err = json.Marshal(a.IsAnnotation)
+		if err != nil {
+			return nil, fmt.Errorf("error marshaling 'isAnnotation': %w", err)
+		}
+	}
+
+	if a.PrimaryColor != nil {
+		object["primaryColor"], err = json.Marshal(a.PrimaryColor)
+		if err != nil {
+			return nil, fmt.Errorf("error marshaling 'primaryColor': %w", err)
+		}
+	}
+
+	if a.SecondaryColor != nil {
+		object["secondaryColor"], err = json.Marshal(a.SecondaryColor)
+		if err != nil {
+			return nil, fmt.Errorf("error marshaling 'secondaryColor': %w", err)
+		}
+	}
+
+	if a.SvgColor != nil {
+		object["svgColor"], err = json.Marshal(a.SvgColor)
+		if err != nil {
+			return nil, fmt.Errorf("error marshaling 'svgColor': %w", err)
+		}
+	}
+
+	if a.SvgComplete != nil {
+		object["svgComplete"], err = json.Marshal(a.SvgComplete)
+		if err != nil {
+			return nil, fmt.Errorf("error marshaling 'svgComplete': %w", err)
+		}
+	}
+
+	if a.SvgWhite != nil {
+		object["svgWhite"], err = json.Marshal(a.SvgWhite)
+		if err != nil {
+			return nil, fmt.Errorf("error marshaling 'svgWhite': %w", err)
+		}
+	}
+
+	for fieldName, field := range a.AdditionalProperties {
+		object[fieldName], err = json.Marshal(field)
+		if err != nil {
+			return nil, fmt.Errorf("error marshaling '%s': %w", fieldName, err)
+		}
+	}
+	return json.Marshal(object)
+}
+
+// AsRelationshipDefinitionMetadataStyles0 returns the union data inside the RelationshipDefinition_Metadata_Styles as a RelationshipDefinitionMetadataStyles0
+func (t RelationshipDefinition_Metadata_Styles) AsRelationshipDefinitionMetadataStyles0() (RelationshipDefinitionMetadataStyles0, error) {
+	var body RelationshipDefinitionMetadataStyles0
+	err := json.Unmarshal(t.union, &body)
+	return body, err
+}
+
+// FromRelationshipDefinitionMetadataStyles0 overwrites any union data inside the RelationshipDefinition_Metadata_Styles as the provided RelationshipDefinitionMetadataStyles0
+func (t *RelationshipDefinition_Metadata_Styles) FromRelationshipDefinitionMetadataStyles0(v RelationshipDefinitionMetadataStyles0) error {
+	b, err := json.Marshal(v)
+	t.union = b
+	return err
+}
+
+// MergeRelationshipDefinitionMetadataStyles0 performs a merge with any union data inside the RelationshipDefinition_Metadata_Styles, using the provided RelationshipDefinitionMetadataStyles0
+func (t *RelationshipDefinition_Metadata_Styles) MergeRelationshipDefinitionMetadataStyles0(v RelationshipDefinitionMetadataStyles0) error {
+	b, err := json.Marshal(v)
+	if err != nil {
+		return err
+	}
+
+	merged, err := runtime.JSONMerge(t.union, b)
+	t.union = merged
+	return err
+}
+
+// AsRelationshipDefinitionMetadataStyles1 returns the union data inside the RelationshipDefinition_Metadata_Styles as a RelationshipDefinitionMetadataStyles1
+func (t RelationshipDefinition_Metadata_Styles) AsRelationshipDefinitionMetadataStyles1() (RelationshipDefinitionMetadataStyles1, error) {
+	var body RelationshipDefinitionMetadataStyles1
+	err := json.Unmarshal(t.union, &body)
+	return body, err
+}
+
+// FromRelationshipDefinitionMetadataStyles1 overwrites any union data inside the RelationshipDefinition_Metadata_Styles as the provided RelationshipDefinitionMetadataStyles1
+func (t *RelationshipDefinition_Metadata_Styles) FromRelationshipDefinitionMetadataStyles1(v RelationshipDefinitionMetadataStyles1) error {
+	b, err := json.Marshal(v)
+	t.union = b
+	return err
+}
+
+// MergeRelationshipDefinitionMetadataStyles1 performs a merge with any union data inside the RelationshipDefinition_Metadata_Styles, using the provided RelationshipDefinitionMetadataStyles1
+func (t *RelationshipDefinition_Metadata_Styles) MergeRelationshipDefinitionMetadataStyles1(v RelationshipDefinitionMetadataStyles1) error {
+	b, err := json.Marshal(v)
+	if err != nil {
+		return err
+	}
+
+	merged, err := runtime.JSONMerge(t.union, b)
+	t.union = merged
+	return err
+}
+
+func (t RelationshipDefinition_Metadata_Styles) MarshalJSON() ([]byte, error) {
+	b, err := t.union.MarshalJSON()
+	return b, err
+}
+
+func (t *RelationshipDefinition_Metadata_Styles) UnmarshalJSON(b []byte) error {
+	err := t.union.UnmarshalJSON(b)
+	return err
+}
+
+// AsRelationshipDefinitionSelectorsAllowFromMatch1From0 returns the union data inside the RelationshipDefinition_Selectors_Allow_From_Match_1_From_Item as a RelationshipDefinitionSelectorsAllowFromMatch1From0
+func (t RelationshipDefinition_Selectors_Allow_From_Match_1_From_Item) AsRelationshipDefinitionSelectorsAllowFromMatch1From0() (RelationshipDefinitionSelectorsAllowFromMatch1From0, error) {
+	var body RelationshipDefinitionSelectorsAllowFromMatch1From0
+	err := json.Unmarshal(t.union, &body)
+	return body, err
+}
+
+// FromRelationshipDefinitionSelectorsAllowFromMatch1From0 overwrites any union data inside the RelationshipDefinition_Selectors_Allow_From_Match_1_From_Item as the provided RelationshipDefinitionSelectorsAllowFromMatch1From0
+func (t *RelationshipDefinition_Selectors_Allow_From_Match_1_From_Item) FromRelationshipDefinitionSelectorsAllowFromMatch1From0(v RelationshipDefinitionSelectorsAllowFromMatch1From0) error {
+	b, err := json.Marshal(v)
+	t.union = b
+	return err
+}
+
+// MergeRelationshipDefinitionSelectorsAllowFromMatch1From0 performs a merge with any union data inside the RelationshipDefinition_Selectors_Allow_From_Match_1_From_Item, using the provided RelationshipDefinitionSelectorsAllowFromMatch1From0
+func (t *RelationshipDefinition_Selectors_Allow_From_Match_1_From_Item) MergeRelationshipDefinitionSelectorsAllowFromMatch1From0(v RelationshipDefinitionSelectorsAllowFromMatch1From0) error {
+	b, err := json.Marshal(v)
+	if err != nil {
+		return err
+	}
+
+	merged, err := runtime.JSONMerge(t.union, b)
+	t.union = merged
+	return err
+}
+
+// AsRelationshipDefinitionSelectorsAllowFromMatch1From1 returns the union data inside the RelationshipDefinition_Selectors_Allow_From_Match_1_From_Item as a RelationshipDefinitionSelectorsAllowFromMatch1From1
+func (t RelationshipDefinition_Selectors_Allow_From_Match_1_From_Item) AsRelationshipDefinitionSelectorsAllowFromMatch1From1() (RelationshipDefinitionSelectorsAllowFromMatch1From1, error) {
+	var body RelationshipDefinitionSelectorsAllowFromMatch1From1
+	err := json.Unmarshal(t.union, &body)
+	return body, err
+}
+
+// FromRelationshipDefinitionSelectorsAllowFromMatch1From1 overwrites any union data inside the RelationshipDefinition_Selectors_Allow_From_Match_1_From_Item as the provided RelationshipDefinitionSelectorsAllowFromMatch1From1
+func (t *RelationshipDefinition_Selectors_Allow_From_Match_1_From_Item) FromRelationshipDefinitionSelectorsAllowFromMatch1From1(v RelationshipDefinitionSelectorsAllowFromMatch1From1) error {
+	b, err := json.Marshal(v)
+	t.union = b
+	return err
+}
+
+// MergeRelationshipDefinitionSelectorsAllowFromMatch1From1 performs a merge with any union data inside the RelationshipDefinition_Selectors_Allow_From_Match_1_From_Item, using the provided RelationshipDefinitionSelectorsAllowFromMatch1From1
+func (t *RelationshipDefinition_Selectors_Allow_From_Match_1_From_Item) MergeRelationshipDefinitionSelectorsAllowFromMatch1From1(v RelationshipDefinitionSelectorsAllowFromMatch1From1) error {
+	b, err := json.Marshal(v)
+	if err != nil {
+		return err
+	}
+
+	merged, err := runtime.JSONMerge(t.union, b)
+	t.union = merged
+	return err
+}
+
+func (t RelationshipDefinition_Selectors_Allow_From_Match_1_From_Item) MarshalJSON() ([]byte, error) {
+	b, err := t.union.MarshalJSON()
+	if err != nil {
+		return nil, err
+	}
+	object := make(map[string]json.RawMessage)
+	if t.union != nil {
+		err = json.Unmarshal(b, &object)
+		if err != nil {
+			return nil, err
+		}
+	}
+
+	if t.Id != nil {
+		object["id"], err = json.Marshal(t.Id)
+		if err != nil {
+			return nil, fmt.Errorf("error marshaling 'id': %w", err)
+		}
+	}
+
+	if t.Kind != nil {
+		object["kind"], err = json.Marshal(t.Kind)
+		if err != nil {
+			return nil, fmt.Errorf("error marshaling 'kind': %w", err)
+		}
+	}
+	b, err = json.Marshal(object)
+	return b, err
+}
+
+func (t *RelationshipDefinition_Selectors_Allow_From_Match_1_From_Item) UnmarshalJSON(b []byte) error {
+	err := t.union.UnmarshalJSON(b)
+	if err != nil {
+		return err
+	}
+	object := make(map[string]json.RawMessage)
+	err = json.Unmarshal(b, &object)
+	if err != nil {
+		return err
+	}
+
+	if raw, found := object["id"]; found {
+		err = json.Unmarshal(raw, &t.Id)
+		if err != nil {
+			return fmt.Errorf("error reading 'id': %w", err)
+		}
+	}
+
+	if raw, found := object["kind"]; found {
+		err = json.Unmarshal(raw, &t.Kind)
+		if err != nil {
+			return fmt.Errorf("error reading 'kind': %w", err)
+		}
+	}
+
+	return err
+}
+
+// AsRelationshipDefinitionSelectorsAllowFromMatch1To0 returns the union data inside the RelationshipDefinition_Selectors_Allow_From_Match_1_To_Item as a RelationshipDefinitionSelectorsAllowFromMatch1To0
+func (t RelationshipDefinition_Selectors_Allow_From_Match_1_To_Item) AsRelationshipDefinitionSelectorsAllowFromMatch1To0() (RelationshipDefinitionSelectorsAllowFromMatch1To0, error) {
+	var body RelationshipDefinitionSelectorsAllowFromMatch1To0
+	err := json.Unmarshal(t.union, &body)
+	return body, err
+}
+
+// FromRelationshipDefinitionSelectorsAllowFromMatch1To0 overwrites any union data inside the RelationshipDefinition_Selectors_Allow_From_Match_1_To_Item as the provided RelationshipDefinitionSelectorsAllowFromMatch1To0
+func (t *RelationshipDefinition_Selectors_Allow_From_Match_1_To_Item) FromRelationshipDefinitionSelectorsAllowFromMatch1To0(v RelationshipDefinitionSelectorsAllowFromMatch1To0) error {
+	b, err := json.Marshal(v)
+	t.union = b
+	return err
+}
+
+// MergeRelationshipDefinitionSelectorsAllowFromMatch1To0 performs a merge with any union data inside the RelationshipDefinition_Selectors_Allow_From_Match_1_To_Item, using the provided RelationshipDefinitionSelectorsAllowFromMatch1To0
+func (t *RelationshipDefinition_Selectors_Allow_From_Match_1_To_Item) MergeRelationshipDefinitionSelectorsAllowFromMatch1To0(v RelationshipDefinitionSelectorsAllowFromMatch1To0) error {
+	b, err := json.Marshal(v)
+	if err != nil {
+		return err
+	}
+
+	merged, err := runtime.JSONMerge(t.union, b)
+	t.union = merged
+	return err
+}
+
+// AsRelationshipDefinitionSelectorsAllowFromMatch1To1 returns the union data inside the RelationshipDefinition_Selectors_Allow_From_Match_1_To_Item as a RelationshipDefinitionSelectorsAllowFromMatch1To1
+func (t RelationshipDefinition_Selectors_Allow_From_Match_1_To_Item) AsRelationshipDefinitionSelectorsAllowFromMatch1To1() (RelationshipDefinitionSelectorsAllowFromMatch1To1, error) {
+	var body RelationshipDefinitionSelectorsAllowFromMatch1To1
+	err := json.Unmarshal(t.union, &body)
+	return body, err
+}
+
+// FromRelationshipDefinitionSelectorsAllowFromMatch1To1 overwrites any union data inside the RelationshipDefinition_Selectors_Allow_From_Match_1_To_Item as the provided RelationshipDefinitionSelectorsAllowFromMatch1To1
+func (t *RelationshipDefinition_Selectors_Allow_From_Match_1_To_Item) FromRelationshipDefinitionSelectorsAllowFromMatch1To1(v RelationshipDefinitionSelectorsAllowFromMatch1To1) error {
+	b, err := json.Marshal(v)
+	t.union = b
+	return err
+}
+
+// MergeRelationshipDefinitionSelectorsAllowFromMatch1To1 performs a merge with any union data inside the RelationshipDefinition_Selectors_Allow_From_Match_1_To_Item, using the provided RelationshipDefinitionSelectorsAllowFromMatch1To1
+func (t *RelationshipDefinition_Selectors_Allow_From_Match_1_To_Item) MergeRelationshipDefinitionSelectorsAllowFromMatch1To1(v RelationshipDefinitionSelectorsAllowFromMatch1To1) error {
+	b, err := json.Marshal(v)
+	if err != nil {
+		return err
+	}
+
+	merged, err := runtime.JSONMerge(t.union, b)
+	t.union = merged
+	return err
+}
+
+func (t RelationshipDefinition_Selectors_Allow_From_Match_1_To_Item) MarshalJSON() ([]byte, error) {
+	b, err := t.union.MarshalJSON()
+	if err != nil {
+		return nil, err
+	}
+	object := make(map[string]json.RawMessage)
+	if t.union != nil {
+		err = json.Unmarshal(b, &object)
+		if err != nil {
+			return nil, err
+		}
+	}
+
+	if t.Id != nil {
+		object["id"], err = json.Marshal(t.Id)
+		if err != nil {
+			return nil, fmt.Errorf("error marshaling 'id': %w", err)
+		}
+	}
+
+	if t.Kind != nil {
+		object["kind"], err = json.Marshal(t.Kind)
+		if err != nil {
+			return nil, fmt.Errorf("error marshaling 'kind': %w", err)
+		}
+	}
+	b, err = json.Marshal(object)
+	return b, err
+}
+
+func (t *RelationshipDefinition_Selectors_Allow_From_Match_1_To_Item) UnmarshalJSON(b []byte) error {
+	err := t.union.UnmarshalJSON(b)
+	if err != nil {
+		return err
+	}
+	object := make(map[string]json.RawMessage)
+	err = json.Unmarshal(b, &object)
+	if err != nil {
+		return err
+	}
+
+	if raw, found := object["id"]; found {
+		err = json.Unmarshal(raw, &t.Id)
+		if err != nil {
+			return fmt.Errorf("error reading 'id': %w", err)
+		}
+	}
+
+	if raw, found := object["kind"]; found {
+		err = json.Unmarshal(raw, &t.Kind)
+		if err != nil {
+			return fmt.Errorf("error reading 'kind': %w", err)
+		}
+	}
+
+	return err
+}
+
+// AsRelationshipDefinitionSelectorsAllowFromMatch0 returns the union data inside the RelationshipDefinition_Selectors_Allow_From_Match as a RelationshipDefinitionSelectorsAllowFromMatch0
+func (t RelationshipDefinition_Selectors_Allow_From_Match) AsRelationshipDefinitionSelectorsAllowFromMatch0() (RelationshipDefinitionSelectorsAllowFromMatch0, error) {
+	var body RelationshipDefinitionSelectorsAllowFromMatch0
+	err := json.Unmarshal(t.union, &body)
+	return body, err
+}
+
+// FromRelationshipDefinitionSelectorsAllowFromMatch0 overwrites any union data inside the RelationshipDefinition_Selectors_Allow_From_Match as the provided RelationshipDefinitionSelectorsAllowFromMatch0
+func (t *RelationshipDefinition_Selectors_Allow_From_Match) FromRelationshipDefinitionSelectorsAllowFromMatch0(v RelationshipDefinitionSelectorsAllowFromMatch0) error {
+	b, err := json.Marshal(v)
+	t.union = b
+	return err
+}
+
+// MergeRelationshipDefinitionSelectorsAllowFromMatch0 performs a merge with any union data inside the RelationshipDefinition_Selectors_Allow_From_Match, using the provided RelationshipDefinitionSelectorsAllowFromMatch0
+func (t *RelationshipDefinition_Selectors_Allow_From_Match) MergeRelationshipDefinitionSelectorsAllowFromMatch0(v RelationshipDefinitionSelectorsAllowFromMatch0) error {
+	b, err := json.Marshal(v)
+	if err != nil {
+		return err
+	}
+
+	merged, err := runtime.JSONMerge(t.union, b)
+	t.union = merged
+	return err
+}
+
+// AsRelationshipDefinitionSelectorsAllowFromMatch1 returns the union data inside the RelationshipDefinition_Selectors_Allow_From_Match as a RelationshipDefinitionSelectorsAllowFromMatch1
+func (t RelationshipDefinition_Selectors_Allow_From_Match) AsRelationshipDefinitionSelectorsAllowFromMatch1() (RelationshipDefinitionSelectorsAllowFromMatch1, error) {
+	var body RelationshipDefinitionSelectorsAllowFromMatch1
+	err := json.Unmarshal(t.union, &body)
+	return body, err
+}
+
+// FromRelationshipDefinitionSelectorsAllowFromMatch1 overwrites any union data inside the RelationshipDefinition_Selectors_Allow_From_Match as the provided RelationshipDefinitionSelectorsAllowFromMatch1
+func (t *RelationshipDefinition_Selectors_Allow_From_Match) FromRelationshipDefinitionSelectorsAllowFromMatch1(v RelationshipDefinitionSelectorsAllowFromMatch1) error {
+	b, err := json.Marshal(v)
+	t.union = b
+	return err
+}
+
+// MergeRelationshipDefinitionSelectorsAllowFromMatch1 performs a merge with any union data inside the RelationshipDefinition_Selectors_Allow_From_Match, using the provided RelationshipDefinitionSelectorsAllowFromMatch1
+func (t *RelationshipDefinition_Selectors_Allow_From_Match) MergeRelationshipDefinitionSelectorsAllowFromMatch1(v RelationshipDefinitionSelectorsAllowFromMatch1) error {
+	b, err := json.Marshal(v)
+	if err != nil {
+		return err
+	}
+
+	merged, err := runtime.JSONMerge(t.union, b)
+	t.union = merged
+	return err
+}
+
+func (t RelationshipDefinition_Selectors_Allow_From_Match) MarshalJSON() ([]byte, error) {
+	b, err := t.union.MarshalJSON()
+	return b, err
+}
+
+func (t *RelationshipDefinition_Selectors_Allow_From_Match) UnmarshalJSON(b []byte) error {
+	err := t.union.UnmarshalJSON(b)
+	return err
+}
+
+// AsRelationshipDefinitionSelectorsAllowFromPatch0 returns the union data inside the RelationshipDefinition_Selectors_Allow_From_Patch as a RelationshipDefinitionSelectorsAllowFromPatch0
+func (t RelationshipDefinition_Selectors_Allow_From_Patch) AsRelationshipDefinitionSelectorsAllowFromPatch0() (RelationshipDefinitionSelectorsAllowFromPatch0, error) {
+	var body RelationshipDefinitionSelectorsAllowFromPatch0
+	err := json.Unmarshal(t.union, &body)
+	return body, err
+}
+
+// FromRelationshipDefinitionSelectorsAllowFromPatch0 overwrites any union data inside the RelationshipDefinition_Selectors_Allow_From_Patch as the provided RelationshipDefinitionSelectorsAllowFromPatch0
+func (t *RelationshipDefinition_Selectors_Allow_From_Patch) FromRelationshipDefinitionSelectorsAllowFromPatch0(v RelationshipDefinitionSelectorsAllowFromPatch0) error {
+	b, err := json.Marshal(v)
+	t.union = b
+	return err
+}
+
+// MergeRelationshipDefinitionSelectorsAllowFromPatch0 performs a merge with any union data inside the RelationshipDefinition_Selectors_Allow_From_Patch, using the provided RelationshipDefinitionSelectorsAllowFromPatch0
+func (t *RelationshipDefinition_Selectors_Allow_From_Patch) MergeRelationshipDefinitionSelectorsAllowFromPatch0(v RelationshipDefinitionSelectorsAllowFromPatch0) error {
+	b, err := json.Marshal(v)
+	if err != nil {
+		return err
+	}
+
+	merged, err := runtime.JSONMerge(t.union, b)
+	t.union = merged
+	return err
+}
+
+// AsRelationshipDefinitionSelectorsAllowFromPatch1 returns the union data inside the RelationshipDefinition_Selectors_Allow_From_Patch as a RelationshipDefinitionSelectorsAllowFromPatch1
+func (t RelationshipDefinition_Selectors_Allow_From_Patch) AsRelationshipDefinitionSelectorsAllowFromPatch1() (RelationshipDefinitionSelectorsAllowFromPatch1, error) {
+	var body RelationshipDefinitionSelectorsAllowFromPatch1
+	err := json.Unmarshal(t.union, &body)
+	return body, err
+}
+
+// FromRelationshipDefinitionSelectorsAllowFromPatch1 overwrites any union data inside the RelationshipDefinition_Selectors_Allow_From_Patch as the provided RelationshipDefinitionSelectorsAllowFromPatch1
+func (t *RelationshipDefinition_Selectors_Allow_From_Patch) FromRelationshipDefinitionSelectorsAllowFromPatch1(v RelationshipDefinitionSelectorsAllowFromPatch1) error {
+	b, err := json.Marshal(v)
+	t.union = b
+	return err
+}
+
+// MergeRelationshipDefinitionSelectorsAllowFromPatch1 performs a merge with any union data inside the RelationshipDefinition_Selectors_Allow_From_Patch, using the provided RelationshipDefinitionSelectorsAllowFromPatch1
+func (t *RelationshipDefinition_Selectors_Allow_From_Patch) MergeRelationshipDefinitionSelectorsAllowFromPatch1(v RelationshipDefinitionSelectorsAllowFromPatch1) error {
+	b, err := json.Marshal(v)
+	if err != nil {
+		return err
+	}
+
+	merged, err := runtime.JSONMerge(t.union, b)
+	t.union = merged
+	return err
+}
+
+func (t RelationshipDefinition_Selectors_Allow_From_Patch) MarshalJSON() ([]byte, error) {
+	b, err := t.union.MarshalJSON()
+	if err != nil {
+		return nil, err
+	}
+	object := make(map[string]json.RawMessage)
+	if t.union != nil {
+		err = json.Unmarshal(b, &object)
+		if err != nil {
+			return nil, err
+		}
+	}
+
+	if t.PatchStrategy != nil {
+		object["patchStrategy"], err = json.Marshal(t.PatchStrategy)
+		if err != nil {
+			return nil, fmt.Errorf("error marshaling 'patchStrategy': %w", err)
+		}
+	}
+	b, err = json.Marshal(object)
+	return b, err
+}
+
+func (t *RelationshipDefinition_Selectors_Allow_From_Patch) UnmarshalJSON(b []byte) error {
+	err := t.union.UnmarshalJSON(b)
+	if err != nil {
+		return err
+	}
+	object := make(map[string]json.RawMessage)
+	err = json.Unmarshal(b, &object)
+	if err != nil {
+		return err
+	}
+
+	if raw, found := object["patchStrategy"]; found {
+		err = json.Unmarshal(raw, &t.PatchStrategy)
+		if err != nil {
+			return fmt.Errorf("error reading 'patchStrategy': %w", err)
+		}
+	}
+
+	return err
+}
+
+// AsRelationshipDefinitionSelectorsAllowToMatch1From0 returns the union data inside the RelationshipDefinition_Selectors_Allow_To_Match_1_From_Item as a RelationshipDefinitionSelectorsAllowToMatch1From0
+func (t RelationshipDefinition_Selectors_Allow_To_Match_1_From_Item) AsRelationshipDefinitionSelectorsAllowToMatch1From0() (RelationshipDefinitionSelectorsAllowToMatch1From0, error) {
+	var body RelationshipDefinitionSelectorsAllowToMatch1From0
+	err := json.Unmarshal(t.union, &body)
+	return body, err
+}
+
+// FromRelationshipDefinitionSelectorsAllowToMatch1From0 overwrites any union data inside the RelationshipDefinition_Selectors_Allow_To_Match_1_From_Item as the provided RelationshipDefinitionSelectorsAllowToMatch1From0
+func (t *RelationshipDefinition_Selectors_Allow_To_Match_1_From_Item) FromRelationshipDefinitionSelectorsAllowToMatch1From0(v RelationshipDefinitionSelectorsAllowToMatch1From0) error {
+	b, err := json.Marshal(v)
+	t.union = b
+	return err
+}
+
+// MergeRelationshipDefinitionSelectorsAllowToMatch1From0 performs a merge with any union data inside the RelationshipDefinition_Selectors_Allow_To_Match_1_From_Item, using the provided RelationshipDefinitionSelectorsAllowToMatch1From0
+func (t *RelationshipDefinition_Selectors_Allow_To_Match_1_From_Item) MergeRelationshipDefinitionSelectorsAllowToMatch1From0(v RelationshipDefinitionSelectorsAllowToMatch1From0) error {
+	b, err := json.Marshal(v)
+	if err != nil {
+		return err
+	}
+
+	merged, err := runtime.JSONMerge(t.union, b)
+	t.union = merged
+	return err
+}
+
+// AsRelationshipDefinitionSelectorsAllowToMatch1From1 returns the union data inside the RelationshipDefinition_Selectors_Allow_To_Match_1_From_Item as a RelationshipDefinitionSelectorsAllowToMatch1From1
+func (t RelationshipDefinition_Selectors_Allow_To_Match_1_From_Item) AsRelationshipDefinitionSelectorsAllowToMatch1From1() (RelationshipDefinitionSelectorsAllowToMatch1From1, error) {
+	var body RelationshipDefinitionSelectorsAllowToMatch1From1
+	err := json.Unmarshal(t.union, &body)
+	return body, err
+}
+
+// FromRelationshipDefinitionSelectorsAllowToMatch1From1 overwrites any union data inside the RelationshipDefinition_Selectors_Allow_To_Match_1_From_Item as the provided RelationshipDefinitionSelectorsAllowToMatch1From1
+func (t *RelationshipDefinition_Selectors_Allow_To_Match_1_From_Item) FromRelationshipDefinitionSelectorsAllowToMatch1From1(v RelationshipDefinitionSelectorsAllowToMatch1From1) error {
+	b, err := json.Marshal(v)
+	t.union = b
+	return err
+}
+
+// MergeRelationshipDefinitionSelectorsAllowToMatch1From1 performs a merge with any union data inside the RelationshipDefinition_Selectors_Allow_To_Match_1_From_Item, using the provided RelationshipDefinitionSelectorsAllowToMatch1From1
+func (t *RelationshipDefinition_Selectors_Allow_To_Match_1_From_Item) MergeRelationshipDefinitionSelectorsAllowToMatch1From1(v RelationshipDefinitionSelectorsAllowToMatch1From1) error {
+	b, err := json.Marshal(v)
+	if err != nil {
+		return err
+	}
+
+	merged, err := runtime.JSONMerge(t.union, b)
+	t.union = merged
+	return err
+}
+
+func (t RelationshipDefinition_Selectors_Allow_To_Match_1_From_Item) MarshalJSON() ([]byte, error) {
+	b, err := t.union.MarshalJSON()
+	if err != nil {
+		return nil, err
+	}
+	object := make(map[string]json.RawMessage)
+	if t.union != nil {
+		err = json.Unmarshal(b, &object)
+		if err != nil {
+			return nil, err
+		}
+	}
+
+	if t.Id != nil {
+		object["id"], err = json.Marshal(t.Id)
+		if err != nil {
+			return nil, fmt.Errorf("error marshaling 'id': %w", err)
+		}
+	}
+
+	if t.Kind != nil {
+		object["kind"], err = json.Marshal(t.Kind)
+		if err != nil {
+			return nil, fmt.Errorf("error marshaling 'kind': %w", err)
+		}
+	}
+	b, err = json.Marshal(object)
+	return b, err
+}
+
+func (t *RelationshipDefinition_Selectors_Allow_To_Match_1_From_Item) UnmarshalJSON(b []byte) error {
+	err := t.union.UnmarshalJSON(b)
+	if err != nil {
+		return err
+	}
+	object := make(map[string]json.RawMessage)
+	err = json.Unmarshal(b, &object)
+	if err != nil {
+		return err
+	}
+
+	if raw, found := object["id"]; found {
+		err = json.Unmarshal(raw, &t.Id)
+		if err != nil {
+			return fmt.Errorf("error reading 'id': %w", err)
+		}
+	}
+
+	if raw, found := object["kind"]; found {
+		err = json.Unmarshal(raw, &t.Kind)
+		if err != nil {
+			return fmt.Errorf("error reading 'kind': %w", err)
+		}
+	}
+
+	return err
+}
+
+// AsRelationshipDefinitionSelectorsAllowToMatch1To0 returns the union data inside the RelationshipDefinition_Selectors_Allow_To_Match_1_To_Item as a RelationshipDefinitionSelectorsAllowToMatch1To0
+func (t RelationshipDefinition_Selectors_Allow_To_Match_1_To_Item) AsRelationshipDefinitionSelectorsAllowToMatch1To0() (RelationshipDefinitionSelectorsAllowToMatch1To0, error) {
+	var body RelationshipDefinitionSelectorsAllowToMatch1To0
+	err := json.Unmarshal(t.union, &body)
+	return body, err
+}
+
+// FromRelationshipDefinitionSelectorsAllowToMatch1To0 overwrites any union data inside the RelationshipDefinition_Selectors_Allow_To_Match_1_To_Item as the provided RelationshipDefinitionSelectorsAllowToMatch1To0
+func (t *RelationshipDefinition_Selectors_Allow_To_Match_1_To_Item) FromRelationshipDefinitionSelectorsAllowToMatch1To0(v RelationshipDefinitionSelectorsAllowToMatch1To0) error {
+	b, err := json.Marshal(v)
+	t.union = b
+	return err
+}
+
+// MergeRelationshipDefinitionSelectorsAllowToMatch1To0 performs a merge with any union data inside the RelationshipDefinition_Selectors_Allow_To_Match_1_To_Item, using the provided RelationshipDefinitionSelectorsAllowToMatch1To0
+func (t *RelationshipDefinition_Selectors_Allow_To_Match_1_To_Item) MergeRelationshipDefinitionSelectorsAllowToMatch1To0(v RelationshipDefinitionSelectorsAllowToMatch1To0) error {
+	b, err := json.Marshal(v)
+	if err != nil {
+		return err
+	}
+
+	merged, err := runtime.JSONMerge(t.union, b)
+	t.union = merged
+	return err
+}
+
+// AsRelationshipDefinitionSelectorsAllowToMatch1To1 returns the union data inside the RelationshipDefinition_Selectors_Allow_To_Match_1_To_Item as a RelationshipDefinitionSelectorsAllowToMatch1To1
+func (t RelationshipDefinition_Selectors_Allow_To_Match_1_To_Item) AsRelationshipDefinitionSelectorsAllowToMatch1To1() (RelationshipDefinitionSelectorsAllowToMatch1To1, error) {
+	var body RelationshipDefinitionSelectorsAllowToMatch1To1
+	err := json.Unmarshal(t.union, &body)
+	return body, err
+}
+
+// FromRelationshipDefinitionSelectorsAllowToMatch1To1 overwrites any union data inside the RelationshipDefinition_Selectors_Allow_To_Match_1_To_Item as the provided RelationshipDefinitionSelectorsAllowToMatch1To1
+func (t *RelationshipDefinition_Selectors_Allow_To_Match_1_To_Item) FromRelationshipDefinitionSelectorsAllowToMatch1To1(v RelationshipDefinitionSelectorsAllowToMatch1To1) error {
+	b, err := json.Marshal(v)
+	t.union = b
+	return err
+}
+
+// MergeRelationshipDefinitionSelectorsAllowToMatch1To1 performs a merge with any union data inside the RelationshipDefinition_Selectors_Allow_To_Match_1_To_Item, using the provided RelationshipDefinitionSelectorsAllowToMatch1To1
+func (t *RelationshipDefinition_Selectors_Allow_To_Match_1_To_Item) MergeRelationshipDefinitionSelectorsAllowToMatch1To1(v RelationshipDefinitionSelectorsAllowToMatch1To1) error {
+	b, err := json.Marshal(v)
+	if err != nil {
+		return err
+	}
+
+	merged, err := runtime.JSONMerge(t.union, b)
+	t.union = merged
+	return err
+}
+
+func (t RelationshipDefinition_Selectors_Allow_To_Match_1_To_Item) MarshalJSON() ([]byte, error) {
+	b, err := t.union.MarshalJSON()
+	if err != nil {
+		return nil, err
+	}
+	object := make(map[string]json.RawMessage)
+	if t.union != nil {
+		err = json.Unmarshal(b, &object)
+		if err != nil {
+			return nil, err
+		}
+	}
+
+	if t.Id != nil {
+		object["id"], err = json.Marshal(t.Id)
+		if err != nil {
+			return nil, fmt.Errorf("error marshaling 'id': %w", err)
+		}
+	}
+
+	if t.Kind != nil {
+		object["kind"], err = json.Marshal(t.Kind)
+		if err != nil {
+			return nil, fmt.Errorf("error marshaling 'kind': %w", err)
+		}
+	}
+	b, err = json.Marshal(object)
+	return b, err
+}
+
+func (t *RelationshipDefinition_Selectors_Allow_To_Match_1_To_Item) UnmarshalJSON(b []byte) error {
+	err := t.union.UnmarshalJSON(b)
+	if err != nil {
+		return err
+	}
+	object := make(map[string]json.RawMessage)
+	err = json.Unmarshal(b, &object)
+	if err != nil {
+		return err
+	}
+
+	if raw, found := object["id"]; found {
+		err = json.Unmarshal(raw, &t.Id)
+		if err != nil {
+			return fmt.Errorf("error reading 'id': %w", err)
+		}
+	}
+
+	if raw, found := object["kind"]; found {
+		err = json.Unmarshal(raw, &t.Kind)
+		if err != nil {
+			return fmt.Errorf("error reading 'kind': %w", err)
+		}
+	}
+
+	return err
+}
+
+// AsRelationshipDefinitionSelectorsAllowToMatch0 returns the union data inside the RelationshipDefinition_Selectors_Allow_To_Match as a RelationshipDefinitionSelectorsAllowToMatch0
+func (t RelationshipDefinition_Selectors_Allow_To_Match) AsRelationshipDefinitionSelectorsAllowToMatch0() (RelationshipDefinitionSelectorsAllowToMatch0, error) {
+	var body RelationshipDefinitionSelectorsAllowToMatch0
+	err := json.Unmarshal(t.union, &body)
+	return body, err
+}
+
+// FromRelationshipDefinitionSelectorsAllowToMatch0 overwrites any union data inside the RelationshipDefinition_Selectors_Allow_To_Match as the provided RelationshipDefinitionSelectorsAllowToMatch0
+func (t *RelationshipDefinition_Selectors_Allow_To_Match) FromRelationshipDefinitionSelectorsAllowToMatch0(v RelationshipDefinitionSelectorsAllowToMatch0) error {
+	b, err := json.Marshal(v)
+	t.union = b
+	return err
+}
+
+// MergeRelationshipDefinitionSelectorsAllowToMatch0 performs a merge with any union data inside the RelationshipDefinition_Selectors_Allow_To_Match, using the provided RelationshipDefinitionSelectorsAllowToMatch0
+func (t *RelationshipDefinition_Selectors_Allow_To_Match) MergeRelationshipDefinitionSelectorsAllowToMatch0(v RelationshipDefinitionSelectorsAllowToMatch0) error {
+	b, err := json.Marshal(v)
+	if err != nil {
+		return err
+	}
+
+	merged, err := runtime.JSONMerge(t.union, b)
+	t.union = merged
+	return err
+}
+
+// AsRelationshipDefinitionSelectorsAllowToMatch1 returns the union data inside the RelationshipDefinition_Selectors_Allow_To_Match as a RelationshipDefinitionSelectorsAllowToMatch1
+func (t RelationshipDefinition_Selectors_Allow_To_Match) AsRelationshipDefinitionSelectorsAllowToMatch1() (RelationshipDefinitionSelectorsAllowToMatch1, error) {
+	var body RelationshipDefinitionSelectorsAllowToMatch1
+	err := json.Unmarshal(t.union, &body)
+	return body, err
+}
+
+// FromRelationshipDefinitionSelectorsAllowToMatch1 overwrites any union data inside the RelationshipDefinition_Selectors_Allow_To_Match as the provided RelationshipDefinitionSelectorsAllowToMatch1
+func (t *RelationshipDefinition_Selectors_Allow_To_Match) FromRelationshipDefinitionSelectorsAllowToMatch1(v RelationshipDefinitionSelectorsAllowToMatch1) error {
+	b, err := json.Marshal(v)
+	t.union = b
+	return err
+}
+
+// MergeRelationshipDefinitionSelectorsAllowToMatch1 performs a merge with any union data inside the RelationshipDefinition_Selectors_Allow_To_Match, using the provided RelationshipDefinitionSelectorsAllowToMatch1
+func (t *RelationshipDefinition_Selectors_Allow_To_Match) MergeRelationshipDefinitionSelectorsAllowToMatch1(v RelationshipDefinitionSelectorsAllowToMatch1) error {
+	b, err := json.Marshal(v)
+	if err != nil {
+		return err
+	}
+
+	merged, err := runtime.JSONMerge(t.union, b)
+	t.union = merged
+	return err
+}
+
+func (t RelationshipDefinition_Selectors_Allow_To_Match) MarshalJSON() ([]byte, error) {
+	b, err := t.union.MarshalJSON()
+	return b, err
+}
+
+func (t *RelationshipDefinition_Selectors_Allow_To_Match) UnmarshalJSON(b []byte) error {
+	err := t.union.UnmarshalJSON(b)
+	return err
+}
+
+// AsRelationshipDefinitionSelectorsAllowToPatch0 returns the union data inside the RelationshipDefinition_Selectors_Allow_To_Patch as a RelationshipDefinitionSelectorsAllowToPatch0
+func (t RelationshipDefinition_Selectors_Allow_To_Patch) AsRelationshipDefinitionSelectorsAllowToPatch0() (RelationshipDefinitionSelectorsAllowToPatch0, error) {
+	var body RelationshipDefinitionSelectorsAllowToPatch0
+	err := json.Unmarshal(t.union, &body)
+	return body, err
+}
+
+// FromRelationshipDefinitionSelectorsAllowToPatch0 overwrites any union data inside the RelationshipDefinition_Selectors_Allow_To_Patch as the provided RelationshipDefinitionSelectorsAllowToPatch0
+func (t *RelationshipDefinition_Selectors_Allow_To_Patch) FromRelationshipDefinitionSelectorsAllowToPatch0(v RelationshipDefinitionSelectorsAllowToPatch0) error {
+	b, err := json.Marshal(v)
+	t.union = b
+	return err
+}
+
+// MergeRelationshipDefinitionSelectorsAllowToPatch0 performs a merge with any union data inside the RelationshipDefinition_Selectors_Allow_To_Patch, using the provided RelationshipDefinitionSelectorsAllowToPatch0
+func (t *RelationshipDefinition_Selectors_Allow_To_Patch) MergeRelationshipDefinitionSelectorsAllowToPatch0(v RelationshipDefinitionSelectorsAllowToPatch0) error {
+	b, err := json.Marshal(v)
+	if err != nil {
+		return err
+	}
+
+	merged, err := runtime.JSONMerge(t.union, b)
+	t.union = merged
+	return err
+}
+
+// AsRelationshipDefinitionSelectorsAllowToPatch1 returns the union data inside the RelationshipDefinition_Selectors_Allow_To_Patch as a RelationshipDefinitionSelectorsAllowToPatch1
+func (t RelationshipDefinition_Selectors_Allow_To_Patch) AsRelationshipDefinitionSelectorsAllowToPatch1() (RelationshipDefinitionSelectorsAllowToPatch1, error) {
+	var body RelationshipDefinitionSelectorsAllowToPatch1
+	err := json.Unmarshal(t.union, &body)
+	return body, err
+}
+
+// FromRelationshipDefinitionSelectorsAllowToPatch1 overwrites any union data inside the RelationshipDefinition_Selectors_Allow_To_Patch as the provided RelationshipDefinitionSelectorsAllowToPatch1
+func (t *RelationshipDefinition_Selectors_Allow_To_Patch) FromRelationshipDefinitionSelectorsAllowToPatch1(v RelationshipDefinitionSelectorsAllowToPatch1) error {
+	b, err := json.Marshal(v)
+	t.union = b
+	return err
+}
+
+// MergeRelationshipDefinitionSelectorsAllowToPatch1 performs a merge with any union data inside the RelationshipDefinition_Selectors_Allow_To_Patch, using the provided RelationshipDefinitionSelectorsAllowToPatch1
+func (t *RelationshipDefinition_Selectors_Allow_To_Patch) MergeRelationshipDefinitionSelectorsAllowToPatch1(v RelationshipDefinitionSelectorsAllowToPatch1) error {
+	b, err := json.Marshal(v)
+	if err != nil {
+		return err
+	}
+
+	merged, err := runtime.JSONMerge(t.union, b)
+	t.union = merged
+	return err
+}
+
+func (t RelationshipDefinition_Selectors_Allow_To_Patch) MarshalJSON() ([]byte, error) {
+	b, err := t.union.MarshalJSON()
+	if err != nil {
+		return nil, err
+	}
+	object := make(map[string]json.RawMessage)
+	if t.union != nil {
+		err = json.Unmarshal(b, &object)
+		if err != nil {
+			return nil, err
+		}
+	}
+
+	if t.PatchStrategy != nil {
+		object["patchStrategy"], err = json.Marshal(t.PatchStrategy)
+		if err != nil {
+			return nil, fmt.Errorf("error marshaling 'patchStrategy': %w", err)
+		}
+	}
+	b, err = json.Marshal(object)
+	return b, err
+}
+
+func (t *RelationshipDefinition_Selectors_Allow_To_Patch) UnmarshalJSON(b []byte) error {
+	err := t.union.UnmarshalJSON(b)
+	if err != nil {
+		return err
+	}
+	object := make(map[string]json.RawMessage)
+	err = json.Unmarshal(b, &object)
+	if err != nil {
+		return err
+	}
+
+	if raw, found := object["patchStrategy"]; found {
+		err = json.Unmarshal(raw, &t.PatchStrategy)
+		if err != nil {
+			return fmt.Errorf("error reading 'patchStrategy': %w", err)
+		}
+	}
+
+	return err
+}
+
+// AsRelationshipDefinitionSelectorsDenyFromMatch1From0 returns the union data inside the RelationshipDefinition_Selectors_Deny_From_Match_1_From_Item as a RelationshipDefinitionSelectorsDenyFromMatch1From0
+func (t RelationshipDefinition_Selectors_Deny_From_Match_1_From_Item) AsRelationshipDefinitionSelectorsDenyFromMatch1From0() (RelationshipDefinitionSelectorsDenyFromMatch1From0, error) {
+	var body RelationshipDefinitionSelectorsDenyFromMatch1From0
+	err := json.Unmarshal(t.union, &body)
+	return body, err
+}
+
+// FromRelationshipDefinitionSelectorsDenyFromMatch1From0 overwrites any union data inside the RelationshipDefinition_Selectors_Deny_From_Match_1_From_Item as the provided RelationshipDefinitionSelectorsDenyFromMatch1From0
+func (t *RelationshipDefinition_Selectors_Deny_From_Match_1_From_Item) FromRelationshipDefinitionSelectorsDenyFromMatch1From0(v RelationshipDefinitionSelectorsDenyFromMatch1From0) error {
+	b, err := json.Marshal(v)
+	t.union = b
+	return err
+}
+
+// MergeRelationshipDefinitionSelectorsDenyFromMatch1From0 performs a merge with any union data inside the RelationshipDefinition_Selectors_Deny_From_Match_1_From_Item, using the provided RelationshipDefinitionSelectorsDenyFromMatch1From0
+func (t *RelationshipDefinition_Selectors_Deny_From_Match_1_From_Item) MergeRelationshipDefinitionSelectorsDenyFromMatch1From0(v RelationshipDefinitionSelectorsDenyFromMatch1From0) error {
+	b, err := json.Marshal(v)
+	if err != nil {
+		return err
+	}
+
+	merged, err := runtime.JSONMerge(t.union, b)
+	t.union = merged
+	return err
+}
+
+// AsRelationshipDefinitionSelectorsDenyFromMatch1From1 returns the union data inside the RelationshipDefinition_Selectors_Deny_From_Match_1_From_Item as a RelationshipDefinitionSelectorsDenyFromMatch1From1
+func (t RelationshipDefinition_Selectors_Deny_From_Match_1_From_Item) AsRelationshipDefinitionSelectorsDenyFromMatch1From1() (RelationshipDefinitionSelectorsDenyFromMatch1From1, error) {
+	var body RelationshipDefinitionSelectorsDenyFromMatch1From1
+	err := json.Unmarshal(t.union, &body)
+	return body, err
+}
+
+// FromRelationshipDefinitionSelectorsDenyFromMatch1From1 overwrites any union data inside the RelationshipDefinition_Selectors_Deny_From_Match_1_From_Item as the provided RelationshipDefinitionSelectorsDenyFromMatch1From1
+func (t *RelationshipDefinition_Selectors_Deny_From_Match_1_From_Item) FromRelationshipDefinitionSelectorsDenyFromMatch1From1(v RelationshipDefinitionSelectorsDenyFromMatch1From1) error {
+	b, err := json.Marshal(v)
+	t.union = b
+	return err
+}
+
+// MergeRelationshipDefinitionSelectorsDenyFromMatch1From1 performs a merge with any union data inside the RelationshipDefinition_Selectors_Deny_From_Match_1_From_Item, using the provided RelationshipDefinitionSelectorsDenyFromMatch1From1
+func (t *RelationshipDefinition_Selectors_Deny_From_Match_1_From_Item) MergeRelationshipDefinitionSelectorsDenyFromMatch1From1(v RelationshipDefinitionSelectorsDenyFromMatch1From1) error {
+	b, err := json.Marshal(v)
+	if err != nil {
+		return err
+	}
+
+	merged, err := runtime.JSONMerge(t.union, b)
+	t.union = merged
+	return err
+}
+
+func (t RelationshipDefinition_Selectors_Deny_From_Match_1_From_Item) MarshalJSON() ([]byte, error) {
+	b, err := t.union.MarshalJSON()
+	if err != nil {
+		return nil, err
+	}
+	object := make(map[string]json.RawMessage)
+	if t.union != nil {
+		err = json.Unmarshal(b, &object)
+		if err != nil {
+			return nil, err
+		}
+	}
+
+	if t.Id != nil {
+		object["id"], err = json.Marshal(t.Id)
+		if err != nil {
+			return nil, fmt.Errorf("error marshaling 'id': %w", err)
+		}
+	}
+
+	if t.Kind != nil {
+		object["kind"], err = json.Marshal(t.Kind)
+		if err != nil {
+			return nil, fmt.Errorf("error marshaling 'kind': %w", err)
+		}
+	}
+	b, err = json.Marshal(object)
+	return b, err
+}
+
+func (t *RelationshipDefinition_Selectors_Deny_From_Match_1_From_Item) UnmarshalJSON(b []byte) error {
+	err := t.union.UnmarshalJSON(b)
+	if err != nil {
+		return err
+	}
+	object := make(map[string]json.RawMessage)
+	err = json.Unmarshal(b, &object)
+	if err != nil {
+		return err
+	}
+
+	if raw, found := object["id"]; found {
+		err = json.Unmarshal(raw, &t.Id)
+		if err != nil {
+			return fmt.Errorf("error reading 'id': %w", err)
+		}
+	}
+
+	if raw, found := object["kind"]; found {
+		err = json.Unmarshal(raw, &t.Kind)
+		if err != nil {
+			return fmt.Errorf("error reading 'kind': %w", err)
+		}
+	}
+
+	return err
+}
+
+// AsRelationshipDefinitionSelectorsDenyFromMatch1To0 returns the union data inside the RelationshipDefinition_Selectors_Deny_From_Match_1_To_Item as a RelationshipDefinitionSelectorsDenyFromMatch1To0
+func (t RelationshipDefinition_Selectors_Deny_From_Match_1_To_Item) AsRelationshipDefinitionSelectorsDenyFromMatch1To0() (RelationshipDefinitionSelectorsDenyFromMatch1To0, error) {
+	var body RelationshipDefinitionSelectorsDenyFromMatch1To0
+	err := json.Unmarshal(t.union, &body)
+	return body, err
+}
+
+// FromRelationshipDefinitionSelectorsDenyFromMatch1To0 overwrites any union data inside the RelationshipDefinition_Selectors_Deny_From_Match_1_To_Item as the provided RelationshipDefinitionSelectorsDenyFromMatch1To0
+func (t *RelationshipDefinition_Selectors_Deny_From_Match_1_To_Item) FromRelationshipDefinitionSelectorsDenyFromMatch1To0(v RelationshipDefinitionSelectorsDenyFromMatch1To0) error {
+	b, err := json.Marshal(v)
+	t.union = b
+	return err
+}
+
+// MergeRelationshipDefinitionSelectorsDenyFromMatch1To0 performs a merge with any union data inside the RelationshipDefinition_Selectors_Deny_From_Match_1_To_Item, using the provided RelationshipDefinitionSelectorsDenyFromMatch1To0
+func (t *RelationshipDefinition_Selectors_Deny_From_Match_1_To_Item) MergeRelationshipDefinitionSelectorsDenyFromMatch1To0(v RelationshipDefinitionSelectorsDenyFromMatch1To0) error {
+	b, err := json.Marshal(v)
+	if err != nil {
+		return err
+	}
+
+	merged, err := runtime.JSONMerge(t.union, b)
+	t.union = merged
+	return err
+}
+
+// AsRelationshipDefinitionSelectorsDenyFromMatch1To1 returns the union data inside the RelationshipDefinition_Selectors_Deny_From_Match_1_To_Item as a RelationshipDefinitionSelectorsDenyFromMatch1To1
+func (t RelationshipDefinition_Selectors_Deny_From_Match_1_To_Item) AsRelationshipDefinitionSelectorsDenyFromMatch1To1() (RelationshipDefinitionSelectorsDenyFromMatch1To1, error) {
+	var body RelationshipDefinitionSelectorsDenyFromMatch1To1
+	err := json.Unmarshal(t.union, &body)
+	return body, err
+}
+
+// FromRelationshipDefinitionSelectorsDenyFromMatch1To1 overwrites any union data inside the RelationshipDefinition_Selectors_Deny_From_Match_1_To_Item as the provided RelationshipDefinitionSelectorsDenyFromMatch1To1
+func (t *RelationshipDefinition_Selectors_Deny_From_Match_1_To_Item) FromRelationshipDefinitionSelectorsDenyFromMatch1To1(v RelationshipDefinitionSelectorsDenyFromMatch1To1) error {
+	b, err := json.Marshal(v)
+	t.union = b
+	return err
+}
+
+// MergeRelationshipDefinitionSelectorsDenyFromMatch1To1 performs a merge with any union data inside the RelationshipDefinition_Selectors_Deny_From_Match_1_To_Item, using the provided RelationshipDefinitionSelectorsDenyFromMatch1To1
+func (t *RelationshipDefinition_Selectors_Deny_From_Match_1_To_Item) MergeRelationshipDefinitionSelectorsDenyFromMatch1To1(v RelationshipDefinitionSelectorsDenyFromMatch1To1) error {
+	b, err := json.Marshal(v)
+	if err != nil {
+		return err
+	}
+
+	merged, err := runtime.JSONMerge(t.union, b)
+	t.union = merged
+	return err
+}
+
+func (t RelationshipDefinition_Selectors_Deny_From_Match_1_To_Item) MarshalJSON() ([]byte, error) {
+	b, err := t.union.MarshalJSON()
+	if err != nil {
+		return nil, err
+	}
+	object := make(map[string]json.RawMessage)
+	if t.union != nil {
+		err = json.Unmarshal(b, &object)
+		if err != nil {
+			return nil, err
+		}
+	}
+
+	if t.Id != nil {
+		object["id"], err = json.Marshal(t.Id)
+		if err != nil {
+			return nil, fmt.Errorf("error marshaling 'id': %w", err)
+		}
+	}
+
+	if t.Kind != nil {
+		object["kind"], err = json.Marshal(t.Kind)
+		if err != nil {
+			return nil, fmt.Errorf("error marshaling 'kind': %w", err)
+		}
+	}
+	b, err = json.Marshal(object)
+	return b, err
+}
+
+func (t *RelationshipDefinition_Selectors_Deny_From_Match_1_To_Item) UnmarshalJSON(b []byte) error {
+	err := t.union.UnmarshalJSON(b)
+	if err != nil {
+		return err
+	}
+	object := make(map[string]json.RawMessage)
+	err = json.Unmarshal(b, &object)
+	if err != nil {
+		return err
+	}
+
+	if raw, found := object["id"]; found {
+		err = json.Unmarshal(raw, &t.Id)
+		if err != nil {
+			return fmt.Errorf("error reading 'id': %w", err)
+		}
+	}
+
+	if raw, found := object["kind"]; found {
+		err = json.Unmarshal(raw, &t.Kind)
+		if err != nil {
+			return fmt.Errorf("error reading 'kind': %w", err)
+		}
+	}
+
+	return err
+}
+
+// AsRelationshipDefinitionSelectorsDenyFromMatch0 returns the union data inside the RelationshipDefinition_Selectors_Deny_From_Match as a RelationshipDefinitionSelectorsDenyFromMatch0
+func (t RelationshipDefinition_Selectors_Deny_From_Match) AsRelationshipDefinitionSelectorsDenyFromMatch0() (RelationshipDefinitionSelectorsDenyFromMatch0, error) {
+	var body RelationshipDefinitionSelectorsDenyFromMatch0
+	err := json.Unmarshal(t.union, &body)
+	return body, err
+}
+
+// FromRelationshipDefinitionSelectorsDenyFromMatch0 overwrites any union data inside the RelationshipDefinition_Selectors_Deny_From_Match as the provided RelationshipDefinitionSelectorsDenyFromMatch0
+func (t *RelationshipDefinition_Selectors_Deny_From_Match) FromRelationshipDefinitionSelectorsDenyFromMatch0(v RelationshipDefinitionSelectorsDenyFromMatch0) error {
+	b, err := json.Marshal(v)
+	t.union = b
+	return err
+}
+
+// MergeRelationshipDefinitionSelectorsDenyFromMatch0 performs a merge with any union data inside the RelationshipDefinition_Selectors_Deny_From_Match, using the provided RelationshipDefinitionSelectorsDenyFromMatch0
+func (t *RelationshipDefinition_Selectors_Deny_From_Match) MergeRelationshipDefinitionSelectorsDenyFromMatch0(v RelationshipDefinitionSelectorsDenyFromMatch0) error {
+	b, err := json.Marshal(v)
+	if err != nil {
+		return err
+	}
+
+	merged, err := runtime.JSONMerge(t.union, b)
+	t.union = merged
+	return err
+}
+
+// AsRelationshipDefinitionSelectorsDenyFromMatch1 returns the union data inside the RelationshipDefinition_Selectors_Deny_From_Match as a RelationshipDefinitionSelectorsDenyFromMatch1
+func (t RelationshipDefinition_Selectors_Deny_From_Match) AsRelationshipDefinitionSelectorsDenyFromMatch1() (RelationshipDefinitionSelectorsDenyFromMatch1, error) {
+	var body RelationshipDefinitionSelectorsDenyFromMatch1
+	err := json.Unmarshal(t.union, &body)
+	return body, err
+}
+
+// FromRelationshipDefinitionSelectorsDenyFromMatch1 overwrites any union data inside the RelationshipDefinition_Selectors_Deny_From_Match as the provided RelationshipDefinitionSelectorsDenyFromMatch1
+func (t *RelationshipDefinition_Selectors_Deny_From_Match) FromRelationshipDefinitionSelectorsDenyFromMatch1(v RelationshipDefinitionSelectorsDenyFromMatch1) error {
+	b, err := json.Marshal(v)
+	t.union = b
+	return err
+}
+
+// MergeRelationshipDefinitionSelectorsDenyFromMatch1 performs a merge with any union data inside the RelationshipDefinition_Selectors_Deny_From_Match, using the provided RelationshipDefinitionSelectorsDenyFromMatch1
+func (t *RelationshipDefinition_Selectors_Deny_From_Match) MergeRelationshipDefinitionSelectorsDenyFromMatch1(v RelationshipDefinitionSelectorsDenyFromMatch1) error {
+	b, err := json.Marshal(v)
+	if err != nil {
+		return err
+	}
+
+	merged, err := runtime.JSONMerge(t.union, b)
+	t.union = merged
+	return err
+}
+
+func (t RelationshipDefinition_Selectors_Deny_From_Match) MarshalJSON() ([]byte, error) {
+	b, err := t.union.MarshalJSON()
+	return b, err
+}
+
+func (t *RelationshipDefinition_Selectors_Deny_From_Match) UnmarshalJSON(b []byte) error {
+	err := t.union.UnmarshalJSON(b)
+	return err
+}
+
+// AsRelationshipDefinitionSelectorsDenyFromPatch0 returns the union data inside the RelationshipDefinition_Selectors_Deny_From_Patch as a RelationshipDefinitionSelectorsDenyFromPatch0
+func (t RelationshipDefinition_Selectors_Deny_From_Patch) AsRelationshipDefinitionSelectorsDenyFromPatch0() (RelationshipDefinitionSelectorsDenyFromPatch0, error) {
+	var body RelationshipDefinitionSelectorsDenyFromPatch0
+	err := json.Unmarshal(t.union, &body)
+	return body, err
+}
+
+// FromRelationshipDefinitionSelectorsDenyFromPatch0 overwrites any union data inside the RelationshipDefinition_Selectors_Deny_From_Patch as the provided RelationshipDefinitionSelectorsDenyFromPatch0
+func (t *RelationshipDefinition_Selectors_Deny_From_Patch) FromRelationshipDefinitionSelectorsDenyFromPatch0(v RelationshipDefinitionSelectorsDenyFromPatch0) error {
+	b, err := json.Marshal(v)
+	t.union = b
+	return err
+}
+
+// MergeRelationshipDefinitionSelectorsDenyFromPatch0 performs a merge with any union data inside the RelationshipDefinition_Selectors_Deny_From_Patch, using the provided RelationshipDefinitionSelectorsDenyFromPatch0
+func (t *RelationshipDefinition_Selectors_Deny_From_Patch) MergeRelationshipDefinitionSelectorsDenyFromPatch0(v RelationshipDefinitionSelectorsDenyFromPatch0) error {
+	b, err := json.Marshal(v)
+	if err != nil {
+		return err
+	}
+
+	merged, err := runtime.JSONMerge(t.union, b)
+	t.union = merged
+	return err
+}
+
+// AsRelationshipDefinitionSelectorsDenyFromPatch1 returns the union data inside the RelationshipDefinition_Selectors_Deny_From_Patch as a RelationshipDefinitionSelectorsDenyFromPatch1
+func (t RelationshipDefinition_Selectors_Deny_From_Patch) AsRelationshipDefinitionSelectorsDenyFromPatch1() (RelationshipDefinitionSelectorsDenyFromPatch1, error) {
+	var body RelationshipDefinitionSelectorsDenyFromPatch1
+	err := json.Unmarshal(t.union, &body)
+	return body, err
+}
+
+// FromRelationshipDefinitionSelectorsDenyFromPatch1 overwrites any union data inside the RelationshipDefinition_Selectors_Deny_From_Patch as the provided RelationshipDefinitionSelectorsDenyFromPatch1
+func (t *RelationshipDefinition_Selectors_Deny_From_Patch) FromRelationshipDefinitionSelectorsDenyFromPatch1(v RelationshipDefinitionSelectorsDenyFromPatch1) error {
+	b, err := json.Marshal(v)
+	t.union = b
+	return err
+}
+
+// MergeRelationshipDefinitionSelectorsDenyFromPatch1 performs a merge with any union data inside the RelationshipDefinition_Selectors_Deny_From_Patch, using the provided RelationshipDefinitionSelectorsDenyFromPatch1
+func (t *RelationshipDefinition_Selectors_Deny_From_Patch) MergeRelationshipDefinitionSelectorsDenyFromPatch1(v RelationshipDefinitionSelectorsDenyFromPatch1) error {
+	b, err := json.Marshal(v)
+	if err != nil {
+		return err
+	}
+
+	merged, err := runtime.JSONMerge(t.union, b)
+	t.union = merged
+	return err
+}
+
+func (t RelationshipDefinition_Selectors_Deny_From_Patch) MarshalJSON() ([]byte, error) {
+	b, err := t.union.MarshalJSON()
+	if err != nil {
+		return nil, err
+	}
+	object := make(map[string]json.RawMessage)
+	if t.union != nil {
+		err = json.Unmarshal(b, &object)
+		if err != nil {
+			return nil, err
+		}
+	}
+
+	if t.PatchStrategy != nil {
+		object["patchStrategy"], err = json.Marshal(t.PatchStrategy)
+		if err != nil {
+			return nil, fmt.Errorf("error marshaling 'patchStrategy': %w", err)
+		}
+	}
+	b, err = json.Marshal(object)
+	return b, err
+}
+
+func (t *RelationshipDefinition_Selectors_Deny_From_Patch) UnmarshalJSON(b []byte) error {
+	err := t.union.UnmarshalJSON(b)
+	if err != nil {
+		return err
+	}
+	object := make(map[string]json.RawMessage)
+	err = json.Unmarshal(b, &object)
+	if err != nil {
+		return err
+	}
+
+	if raw, found := object["patchStrategy"]; found {
+		err = json.Unmarshal(raw, &t.PatchStrategy)
+		if err != nil {
+			return fmt.Errorf("error reading 'patchStrategy': %w", err)
+		}
+	}
+
+	return err
+}
+
+// AsRelationshipDefinitionSelectorsDenyToMatch1From0 returns the union data inside the RelationshipDefinition_Selectors_Deny_To_Match_1_From_Item as a RelationshipDefinitionSelectorsDenyToMatch1From0
+func (t RelationshipDefinition_Selectors_Deny_To_Match_1_From_Item) AsRelationshipDefinitionSelectorsDenyToMatch1From0() (RelationshipDefinitionSelectorsDenyToMatch1From0, error) {
+	var body RelationshipDefinitionSelectorsDenyToMatch1From0
+	err := json.Unmarshal(t.union, &body)
+	return body, err
+}
+
+// FromRelationshipDefinitionSelectorsDenyToMatch1From0 overwrites any union data inside the RelationshipDefinition_Selectors_Deny_To_Match_1_From_Item as the provided RelationshipDefinitionSelectorsDenyToMatch1From0
+func (t *RelationshipDefinition_Selectors_Deny_To_Match_1_From_Item) FromRelationshipDefinitionSelectorsDenyToMatch1From0(v RelationshipDefinitionSelectorsDenyToMatch1From0) error {
+	b, err := json.Marshal(v)
+	t.union = b
+	return err
+}
+
+// MergeRelationshipDefinitionSelectorsDenyToMatch1From0 performs a merge with any union data inside the RelationshipDefinition_Selectors_Deny_To_Match_1_From_Item, using the provided RelationshipDefinitionSelectorsDenyToMatch1From0
+func (t *RelationshipDefinition_Selectors_Deny_To_Match_1_From_Item) MergeRelationshipDefinitionSelectorsDenyToMatch1From0(v RelationshipDefinitionSelectorsDenyToMatch1From0) error {
+	b, err := json.Marshal(v)
+	if err != nil {
+		return err
+	}
+
+	merged, err := runtime.JSONMerge(t.union, b)
+	t.union = merged
+	return err
+}
+
+// AsRelationshipDefinitionSelectorsDenyToMatch1From1 returns the union data inside the RelationshipDefinition_Selectors_Deny_To_Match_1_From_Item as a RelationshipDefinitionSelectorsDenyToMatch1From1
+func (t RelationshipDefinition_Selectors_Deny_To_Match_1_From_Item) AsRelationshipDefinitionSelectorsDenyToMatch1From1() (RelationshipDefinitionSelectorsDenyToMatch1From1, error) {
+	var body RelationshipDefinitionSelectorsDenyToMatch1From1
+	err := json.Unmarshal(t.union, &body)
+	return body, err
+}
+
+// FromRelationshipDefinitionSelectorsDenyToMatch1From1 overwrites any union data inside the RelationshipDefinition_Selectors_Deny_To_Match_1_From_Item as the provided RelationshipDefinitionSelectorsDenyToMatch1From1
+func (t *RelationshipDefinition_Selectors_Deny_To_Match_1_From_Item) FromRelationshipDefinitionSelectorsDenyToMatch1From1(v RelationshipDefinitionSelectorsDenyToMatch1From1) error {
+	b, err := json.Marshal(v)
+	t.union = b
+	return err
+}
+
+// MergeRelationshipDefinitionSelectorsDenyToMatch1From1 performs a merge with any union data inside the RelationshipDefinition_Selectors_Deny_To_Match_1_From_Item, using the provided RelationshipDefinitionSelectorsDenyToMatch1From1
+func (t *RelationshipDefinition_Selectors_Deny_To_Match_1_From_Item) MergeRelationshipDefinitionSelectorsDenyToMatch1From1(v RelationshipDefinitionSelectorsDenyToMatch1From1) error {
+	b, err := json.Marshal(v)
+	if err != nil {
+		return err
+	}
+
+	merged, err := runtime.JSONMerge(t.union, b)
+	t.union = merged
+	return err
+}
+
+func (t RelationshipDefinition_Selectors_Deny_To_Match_1_From_Item) MarshalJSON() ([]byte, error) {
+	b, err := t.union.MarshalJSON()
+	if err != nil {
+		return nil, err
+	}
+	object := make(map[string]json.RawMessage)
+	if t.union != nil {
+		err = json.Unmarshal(b, &object)
+		if err != nil {
+			return nil, err
+		}
+	}
+
+	if t.Id != nil {
+		object["id"], err = json.Marshal(t.Id)
+		if err != nil {
+			return nil, fmt.Errorf("error marshaling 'id': %w", err)
+		}
+	}
+
+	if t.Kind != nil {
+		object["kind"], err = json.Marshal(t.Kind)
+		if err != nil {
+			return nil, fmt.Errorf("error marshaling 'kind': %w", err)
+		}
+	}
+	b, err = json.Marshal(object)
+	return b, err
+}
+
+func (t *RelationshipDefinition_Selectors_Deny_To_Match_1_From_Item) UnmarshalJSON(b []byte) error {
+	err := t.union.UnmarshalJSON(b)
+	if err != nil {
+		return err
+	}
+	object := make(map[string]json.RawMessage)
+	err = json.Unmarshal(b, &object)
+	if err != nil {
+		return err
+	}
+
+	if raw, found := object["id"]; found {
+		err = json.Unmarshal(raw, &t.Id)
+		if err != nil {
+			return fmt.Errorf("error reading 'id': %w", err)
+		}
+	}
+
+	if raw, found := object["kind"]; found {
+		err = json.Unmarshal(raw, &t.Kind)
+		if err != nil {
+			return fmt.Errorf("error reading 'kind': %w", err)
+		}
+	}
+
+	return err
+}
+
+// AsRelationshipDefinitionSelectorsDenyToMatch1To0 returns the union data inside the RelationshipDefinition_Selectors_Deny_To_Match_1_To_Item as a RelationshipDefinitionSelectorsDenyToMatch1To0
+func (t RelationshipDefinition_Selectors_Deny_To_Match_1_To_Item) AsRelationshipDefinitionSelectorsDenyToMatch1To0() (RelationshipDefinitionSelectorsDenyToMatch1To0, error) {
+	var body RelationshipDefinitionSelectorsDenyToMatch1To0
+	err := json.Unmarshal(t.union, &body)
+	return body, err
+}
+
+// FromRelationshipDefinitionSelectorsDenyToMatch1To0 overwrites any union data inside the RelationshipDefinition_Selectors_Deny_To_Match_1_To_Item as the provided RelationshipDefinitionSelectorsDenyToMatch1To0
+func (t *RelationshipDefinition_Selectors_Deny_To_Match_1_To_Item) FromRelationshipDefinitionSelectorsDenyToMatch1To0(v RelationshipDefinitionSelectorsDenyToMatch1To0) error {
+	b, err := json.Marshal(v)
+	t.union = b
+	return err
+}
+
+// MergeRelationshipDefinitionSelectorsDenyToMatch1To0 performs a merge with any union data inside the RelationshipDefinition_Selectors_Deny_To_Match_1_To_Item, using the provided RelationshipDefinitionSelectorsDenyToMatch1To0
+func (t *RelationshipDefinition_Selectors_Deny_To_Match_1_To_Item) MergeRelationshipDefinitionSelectorsDenyToMatch1To0(v RelationshipDefinitionSelectorsDenyToMatch1To0) error {
+	b, err := json.Marshal(v)
+	if err != nil {
+		return err
+	}
+
+	merged, err := runtime.JSONMerge(t.union, b)
+	t.union = merged
+	return err
+}
+
+// AsRelationshipDefinitionSelectorsDenyToMatch1To1 returns the union data inside the RelationshipDefinition_Selectors_Deny_To_Match_1_To_Item as a RelationshipDefinitionSelectorsDenyToMatch1To1
+func (t RelationshipDefinition_Selectors_Deny_To_Match_1_To_Item) AsRelationshipDefinitionSelectorsDenyToMatch1To1() (RelationshipDefinitionSelectorsDenyToMatch1To1, error) {
+	var body RelationshipDefinitionSelectorsDenyToMatch1To1
+	err := json.Unmarshal(t.union, &body)
+	return body, err
+}
+
+// FromRelationshipDefinitionSelectorsDenyToMatch1To1 overwrites any union data inside the RelationshipDefinition_Selectors_Deny_To_Match_1_To_Item as the provided RelationshipDefinitionSelectorsDenyToMatch1To1
+func (t *RelationshipDefinition_Selectors_Deny_To_Match_1_To_Item) FromRelationshipDefinitionSelectorsDenyToMatch1To1(v RelationshipDefinitionSelectorsDenyToMatch1To1) error {
+	b, err := json.Marshal(v)
+	t.union = b
+	return err
+}
+
+// MergeRelationshipDefinitionSelectorsDenyToMatch1To1 performs a merge with any union data inside the RelationshipDefinition_Selectors_Deny_To_Match_1_To_Item, using the provided RelationshipDefinitionSelectorsDenyToMatch1To1
+func (t *RelationshipDefinition_Selectors_Deny_To_Match_1_To_Item) MergeRelationshipDefinitionSelectorsDenyToMatch1To1(v RelationshipDefinitionSelectorsDenyToMatch1To1) error {
+	b, err := json.Marshal(v)
+	if err != nil {
+		return err
+	}
+
+	merged, err := runtime.JSONMerge(t.union, b)
+	t.union = merged
+	return err
+}
+
+func (t RelationshipDefinition_Selectors_Deny_To_Match_1_To_Item) MarshalJSON() ([]byte, error) {
+	b, err := t.union.MarshalJSON()
+	if err != nil {
+		return nil, err
+	}
+	object := make(map[string]json.RawMessage)
+	if t.union != nil {
+		err = json.Unmarshal(b, &object)
+		if err != nil {
+			return nil, err
+		}
+	}
+
+	if t.Id != nil {
+		object["id"], err = json.Marshal(t.Id)
+		if err != nil {
+			return nil, fmt.Errorf("error marshaling 'id': %w", err)
+		}
+	}
+
+	if t.Kind != nil {
+		object["kind"], err = json.Marshal(t.Kind)
+		if err != nil {
+			return nil, fmt.Errorf("error marshaling 'kind': %w", err)
+		}
+	}
+	b, err = json.Marshal(object)
+	return b, err
+}
+
+func (t *RelationshipDefinition_Selectors_Deny_To_Match_1_To_Item) UnmarshalJSON(b []byte) error {
+	err := t.union.UnmarshalJSON(b)
+	if err != nil {
+		return err
+	}
+	object := make(map[string]json.RawMessage)
+	err = json.Unmarshal(b, &object)
+	if err != nil {
+		return err
+	}
+
+	if raw, found := object["id"]; found {
+		err = json.Unmarshal(raw, &t.Id)
+		if err != nil {
+			return fmt.Errorf("error reading 'id': %w", err)
+		}
+	}
+
+	if raw, found := object["kind"]; found {
+		err = json.Unmarshal(raw, &t.Kind)
+		if err != nil {
+			return fmt.Errorf("error reading 'kind': %w", err)
+		}
+	}
+
+	return err
+}
+
+// AsRelationshipDefinitionSelectorsDenyToMatch0 returns the union data inside the RelationshipDefinition_Selectors_Deny_To_Match as a RelationshipDefinitionSelectorsDenyToMatch0
+func (t RelationshipDefinition_Selectors_Deny_To_Match) AsRelationshipDefinitionSelectorsDenyToMatch0() (RelationshipDefinitionSelectorsDenyToMatch0, error) {
+	var body RelationshipDefinitionSelectorsDenyToMatch0
+	err := json.Unmarshal(t.union, &body)
+	return body, err
+}
+
+// FromRelationshipDefinitionSelectorsDenyToMatch0 overwrites any union data inside the RelationshipDefinition_Selectors_Deny_To_Match as the provided RelationshipDefinitionSelectorsDenyToMatch0
+func (t *RelationshipDefinition_Selectors_Deny_To_Match) FromRelationshipDefinitionSelectorsDenyToMatch0(v RelationshipDefinitionSelectorsDenyToMatch0) error {
+	b, err := json.Marshal(v)
+	t.union = b
+	return err
+}
+
+// MergeRelationshipDefinitionSelectorsDenyToMatch0 performs a merge with any union data inside the RelationshipDefinition_Selectors_Deny_To_Match, using the provided RelationshipDefinitionSelectorsDenyToMatch0
+func (t *RelationshipDefinition_Selectors_Deny_To_Match) MergeRelationshipDefinitionSelectorsDenyToMatch0(v RelationshipDefinitionSelectorsDenyToMatch0) error {
+	b, err := json.Marshal(v)
+	if err != nil {
+		return err
+	}
+
+	merged, err := runtime.JSONMerge(t.union, b)
+	t.union = merged
+	return err
+}
+
+// AsRelationshipDefinitionSelectorsDenyToMatch1 returns the union data inside the RelationshipDefinition_Selectors_Deny_To_Match as a RelationshipDefinitionSelectorsDenyToMatch1
+func (t RelationshipDefinition_Selectors_Deny_To_Match) AsRelationshipDefinitionSelectorsDenyToMatch1() (RelationshipDefinitionSelectorsDenyToMatch1, error) {
+	var body RelationshipDefinitionSelectorsDenyToMatch1
+	err := json.Unmarshal(t.union, &body)
+	return body, err
+}
+
+// FromRelationshipDefinitionSelectorsDenyToMatch1 overwrites any union data inside the RelationshipDefinition_Selectors_Deny_To_Match as the provided RelationshipDefinitionSelectorsDenyToMatch1
+func (t *RelationshipDefinition_Selectors_Deny_To_Match) FromRelationshipDefinitionSelectorsDenyToMatch1(v RelationshipDefinitionSelectorsDenyToMatch1) error {
+	b, err := json.Marshal(v)
+	t.union = b
+	return err
+}
+
+// MergeRelationshipDefinitionSelectorsDenyToMatch1 performs a merge with any union data inside the RelationshipDefinition_Selectors_Deny_To_Match, using the provided RelationshipDefinitionSelectorsDenyToMatch1
+func (t *RelationshipDefinition_Selectors_Deny_To_Match) MergeRelationshipDefinitionSelectorsDenyToMatch1(v RelationshipDefinitionSelectorsDenyToMatch1) error {
+	b, err := json.Marshal(v)
+	if err != nil {
+		return err
+	}
+
+	merged, err := runtime.JSONMerge(t.union, b)
+	t.union = merged
+	return err
+}
+
+func (t RelationshipDefinition_Selectors_Deny_To_Match) MarshalJSON() ([]byte, error) {
+	b, err := t.union.MarshalJSON()
+	return b, err
+}
+
+func (t *RelationshipDefinition_Selectors_Deny_To_Match) UnmarshalJSON(b []byte) error {
+	err := t.union.UnmarshalJSON(b)
+	return err
+}
+
+// AsRelationshipDefinitionSelectorsDenyToPatch0 returns the union data inside the RelationshipDefinition_Selectors_Deny_To_Patch as a RelationshipDefinitionSelectorsDenyToPatch0
+func (t RelationshipDefinition_Selectors_Deny_To_Patch) AsRelationshipDefinitionSelectorsDenyToPatch0() (RelationshipDefinitionSelectorsDenyToPatch0, error) {
+	var body RelationshipDefinitionSelectorsDenyToPatch0
+	err := json.Unmarshal(t.union, &body)
+	return body, err
+}
+
+// FromRelationshipDefinitionSelectorsDenyToPatch0 overwrites any union data inside the RelationshipDefinition_Selectors_Deny_To_Patch as the provided RelationshipDefinitionSelectorsDenyToPatch0
+func (t *RelationshipDefinition_Selectors_Deny_To_Patch) FromRelationshipDefinitionSelectorsDenyToPatch0(v RelationshipDefinitionSelectorsDenyToPatch0) error {
+	b, err := json.Marshal(v)
+	t.union = b
+	return err
+}
+
+// MergeRelationshipDefinitionSelectorsDenyToPatch0 performs a merge with any union data inside the RelationshipDefinition_Selectors_Deny_To_Patch, using the provided RelationshipDefinitionSelectorsDenyToPatch0
+func (t *RelationshipDefinition_Selectors_Deny_To_Patch) MergeRelationshipDefinitionSelectorsDenyToPatch0(v RelationshipDefinitionSelectorsDenyToPatch0) error {
+	b, err := json.Marshal(v)
+	if err != nil {
+		return err
+	}
+
+	merged, err := runtime.JSONMerge(t.union, b)
+	t.union = merged
+	return err
+}
+
+// AsRelationshipDefinitionSelectorsDenyToPatch1 returns the union data inside the RelationshipDefinition_Selectors_Deny_To_Patch as a RelationshipDefinitionSelectorsDenyToPatch1
+func (t RelationshipDefinition_Selectors_Deny_To_Patch) AsRelationshipDefinitionSelectorsDenyToPatch1() (RelationshipDefinitionSelectorsDenyToPatch1, error) {
+	var body RelationshipDefinitionSelectorsDenyToPatch1
+	err := json.Unmarshal(t.union, &body)
+	return body, err
+}
+
+// FromRelationshipDefinitionSelectorsDenyToPatch1 overwrites any union data inside the RelationshipDefinition_Selectors_Deny_To_Patch as the provided RelationshipDefinitionSelectorsDenyToPatch1
+func (t *RelationshipDefinition_Selectors_Deny_To_Patch) FromRelationshipDefinitionSelectorsDenyToPatch1(v RelationshipDefinitionSelectorsDenyToPatch1) error {
+	b, err := json.Marshal(v)
+	t.union = b
+	return err
+}
+
+// MergeRelationshipDefinitionSelectorsDenyToPatch1 performs a merge with any union data inside the RelationshipDefinition_Selectors_Deny_To_Patch, using the provided RelationshipDefinitionSelectorsDenyToPatch1
+func (t *RelationshipDefinition_Selectors_Deny_To_Patch) MergeRelationshipDefinitionSelectorsDenyToPatch1(v RelationshipDefinitionSelectorsDenyToPatch1) error {
+	b, err := json.Marshal(v)
+	if err != nil {
+		return err
+	}
+
+	merged, err := runtime.JSONMerge(t.union, b)
+	t.union = merged
+	return err
+}
+
+func (t RelationshipDefinition_Selectors_Deny_To_Patch) MarshalJSON() ([]byte, error) {
+	b, err := t.union.MarshalJSON()
+	if err != nil {
+		return nil, err
+	}
+	object := make(map[string]json.RawMessage)
+	if t.union != nil {
+		err = json.Unmarshal(b, &object)
+		if err != nil {
+			return nil, err
+		}
+	}
+
+	if t.PatchStrategy != nil {
+		object["patchStrategy"], err = json.Marshal(t.PatchStrategy)
+		if err != nil {
+			return nil, fmt.Errorf("error marshaling 'patchStrategy': %w", err)
+		}
+	}
+	b, err = json.Marshal(object)
+	return b, err
+}
+
+func (t *RelationshipDefinition_Selectors_Deny_To_Patch) UnmarshalJSON(b []byte) error {
+	err := t.union.UnmarshalJSON(b)
+	if err != nil {
+		return err
+	}
+	object := make(map[string]json.RawMessage)
+	err = json.Unmarshal(b, &object)
+	if err != nil {
+		return err
+	}
+
+	if raw, found := object["patchStrategy"]; found {
+		err = json.Unmarshal(raw, &t.PatchStrategy)
+		if err != nil {
+			return fmt.Errorf("error reading 'patchStrategy': %w", err)
+		}
+	}
+
+	return err
+}

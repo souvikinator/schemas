@@ -6,11 +6,28 @@ package model
 import (
 	"encoding/json"
 	"fmt"
+	"time"
 
 	"github.com/gofrs/uuid"
-	"github.com/meshery/schemas/models/v1alpha1/capability"
-	"github.com/meshery/schemas/models/v1beta1/category"
-	"github.com/meshery/schemas/models/v1beta1/connection"
+)
+
+// Defines values for ModelDefinitionStatus.
+const (
+	ModelDefinitionStatusDuplicate ModelDefinitionStatus = "duplicate"
+	ModelDefinitionStatusEnabled   ModelDefinitionStatus = "enabled"
+	ModelDefinitionStatusIgnored   ModelDefinitionStatus = "ignored"
+)
+
+// Defines values for ModelDefinitionRegistrantStatus.
+const (
+	ModelDefinitionRegistrantStatusConnected    ModelDefinitionRegistrantStatus = "connected"
+	ModelDefinitionRegistrantStatusDeleted      ModelDefinitionRegistrantStatus = "deleted"
+	ModelDefinitionRegistrantStatusDisconnected ModelDefinitionRegistrantStatus = "disconnected"
+	ModelDefinitionRegistrantStatusDiscovered   ModelDefinitionRegistrantStatus = "discovered"
+	ModelDefinitionRegistrantStatusIgnored      ModelDefinitionRegistrantStatus = "ignored"
+	ModelDefinitionRegistrantStatusMaintenance  ModelDefinitionRegistrantStatus = "maintenance"
+	ModelDefinitionRegistrantStatusNotFound     ModelDefinitionRegistrantStatus = "not found"
+	ModelDefinitionRegistrantStatusRegistered   ModelDefinitionRegistrantStatus = "registered"
 )
 
 // Defines values for ModelDefinitionMetadataCapabilitiesEntityState.
@@ -21,96 +38,100 @@ const (
 
 // Defines values for ModelDefinitionMetadataCapabilitiesStatus.
 const (
-	ModelDefinitionMetadataCapabilitiesStatusDisabled ModelDefinitionMetadataCapabilitiesStatus = "disabled"
-	ModelDefinitionMetadataCapabilitiesStatusEnabled  ModelDefinitionMetadataCapabilitiesStatus = "enabled"
+	Disabled ModelDefinitionMetadataCapabilitiesStatus = "disabled"
+	Enabled  ModelDefinitionMetadataCapabilitiesStatus = "enabled"
 )
-
-// Defines values for ModelDefinitionRegistrantStatus.
-const (
-	Connected    ModelDefinitionRegistrantStatus = "connected"
-	Deleted      ModelDefinitionRegistrantStatus = "deleted"
-	Disconnected ModelDefinitionRegistrantStatus = "disconnected"
-	Discovered   ModelDefinitionRegistrantStatus = "discovered"
-	Ignored      ModelDefinitionRegistrantStatus = "ignored"
-	Maintenance  ModelDefinitionRegistrantStatus = "maintenance"
-	NotFound     ModelDefinitionRegistrantStatus = "not found"
-	Registered   ModelDefinitionRegistrantStatus = "registered"
-)
-
-// Defines values for ModelDefinitionStatus.
-const (
-	ModelDefinitionStatusDuplicate ModelDefinitionStatus = "duplicate"
-	ModelDefinitionStatusEnabled   ModelDefinitionStatus = "enabled"
-	ModelDefinitionStatusIgnored   ModelDefinitionStatus = "ignored"
-)
-
-type Model struct {
-	// Version Version of the model as defined by the registrant.
-	Version string `json:"version" yaml:"version"`
-}
 
 // ModelDefinition Meshery Models serve as a portable unit of packaging to define managed entities, their relationships, and capabilities.
 type ModelDefinition struct {
-	// Category Category of the model.
-	Category category.CategoryDefinition `json:"category" yaml:"category" gorm:"foreignKey:CategoryId;references:Id"`
-
-	CategoryId uuid.UUID `json:"-" yaml:"-" gorm:"categoryID"`
-
-	// Description Description of the model.
-	Description string `json:"description,omitempty" yaml:"description,omitempty"`
-
-	// DisplayName Human-readable name for the model.
-	DisplayName string `json:"displayName" yaml:"displayName"`
-
 	// Id Uniquely identifies the entity (i.e. component) as defined in a declaration (i.e. design).
-	Id uuid.UUID `json:"id" yaml:"id"`
+	Id *uuid.UUID `json:"id" yaml:"id"`
 
-	// Metadata Metadata containing additional information associated with the model.
-	Metadata *ModelDefinition_Metadata `gorm:"type:bytes;serializer:json" json:"metadata,omitempty" yaml:"metadata"`
+	// SchemaVersion Specifies the version of the schema used for the definition.
+	SchemaVersion *string `json:"schemaVersion" yaml:"schemaVersion"`
 
-	// Model Registrant-defined data associated with the model. Properties pertain to the software being managed (e.g. Kubernetes v1.31)
-	Model Model `gorm:"type:bytes;serializer:json" json:"model,omitempty" yaml:"model"`
+	// Version Version of the model definition.
+	Version string `json:"version" yaml:"version"`
 
 	// Name The unique name for the model within the scope of a registrant.
 	Name string `json:"name" yaml:"name"`
 
-	// Registrant Meshery Connections are managed and unmanaged resources that either through discovery or manual entry are tracked by Meshery. Learn more at https://docs.meshery.io/concepts/logical/connections
-	Registrant connection.Connection `gorm:"foreignKey:RegistrantId;references:Id" json:"registrant" yaml:"registrant"`
+	// DisplayName Human-readable name for the model.
+	DisplayName *string `json:"displayName" yaml:"displayName"`
 
-	RegistrantId uuid.UUID `json:"connection_id" gorm:"column:connection_id" yaml:"connection_id"`
-
-	// SchemaVersion Specifies the version of the schema used for the definition.
-	SchemaVersion string `json:"schemaVersion" yaml:"schemaVersion"`
+	// Description Description of the model.
+	Description *string `json:"description" yaml:"description"`
 
 	// Status Status of model, including:
 	// - duplicate: this component is a duplicate of another. The component that is to be the canonical reference and that is duplicated by other components should not be assigned the 'duplicate' status.
 	// - maintenance: model is unavailable for a period of time.
 	// - enabled: model is available for use for all users of this Meshery Server.
 	// - ignored: model is unavailable for use for all users of this Meshery Server.
-	Status ModelDefinitionStatus `json:"status" yaml:"status"`
+	Status *ModelDefinitionStatus `json:"status" yaml:"status"`
+
+	// Registrant Meshery Connections are managed and unmanaged resources that either through discovery or manual entry are tracked by Meshery. Learn more at https://docs.meshery.io/concepts/logical/connections
+	Registrant struct {
+		// Id ID
+		Id *uuid.UUID `json:"id" yaml:"id"`
+
+		// Name Connection Name
+		Name *string `db:"name" json:"name" yaml:"name"`
+
+		// CredentialId Credential ID
+		CredentialId *uuid.UUID `db:"credential_id" json:"credential_id" yaml:"credential_id"`
+
+		// Type Connection Type
+		Type string `db:"type" json:"type" yaml:"type"`
+
+		// SubType Connection Subtype
+		SubType *string `db:"sub_type" json:"sub_type" yaml:"sub_type"`
+
+		// Kind Connection Kind
+		Kind     string                  `db:"kind" json:"kind" yaml:"kind"`
+		Metadata *map[string]interface{} `db:"metadata" json:"metadata" yaml:"metadata"`
+
+		// Status Connection Status
+		Status ModelDefinitionRegistrantStatus `db:"status" json:"status" yaml:"status"`
+
+		// UserID A Universally Unique Identifier used to uniquely identify entites in Meshery. The UUID core defintion is used across different schemas.
+		UserID    *uuid.UUID `json:"user_id" yaml:"user_id"`
+		CreatedAt time.Time  `json:"created_at" yaml:"created_at"`
+		UpdatedAt time.Time  `json:"updated_at" yaml:"updated_at"`
+		DeletedAt time.Time  `json:"deleted_at" yaml:"deleted_at"`
+	} `gorm:"foreignKey:RegistrantId;references:Id" json:"registrant" yaml:"registrant"`
+
+	// Category Category of the model.
+	Category struct {
+		// Id A Universally Unique Identifier used to uniquely identify entites in Meshery. The UUID core defintion is used across different schemas.
+		Id       *uuid.UUID              `json:"id" yaml:"id"`
+		Name     *string                 `json:"name" yaml:"name"`
+		Metadata *map[string]interface{} `json:"metadata" yaml:"metadata"`
+	} `gorm:"foreignKey:CategoryId;references:Id" json:"category" yaml:"category"`
 
 	// SubCategory Sub-category of the model.
-	SubCategory string `json:"subCategory,omitempty" yaml:"subCategory,omitempty"`
+	SubCategory *string `json:"subCategory" yaml:"subCategory"`
 
-	// Version Version of the model definition.
-	Version string `json:"version" yaml:"version"`
+	// Metadata Metadata containing additional information associated with the model.
+	Metadata *ModelDefinition_Metadata `gorm:"type:bytes;serializer:json" json:"metadata,omitempty"`
 
-	Components interface{} `json:"components" gorm:"-" yaml:"components"`
-
-	// To prevent cyclic error, the type is changed to interface, it doesn't affect registration
-	// Edited on purpose
-	Relationships interface{} `json:"relationships" gorm:"-" yaml:"relationships"`
-
-	// Total number of components in a model
-	// Edited on purpose
-	ComponentsCount int `json:"components_count" gorm:"-" yaml:"components_count"`
-
-	// Total number of relationships in a model
-	// Edited on purpose
-	RelationshipsCount int `json:"relationships_count" gorm:"-" yaml:"relationships_count"`
+	// Model Registrant-defined data associated with the model. Properties pertain to the software being managed (e.g. Kubernetes v1.31)
+	Model *struct {
+		// Version Version of the model as defined by the registrant.
+		Version string `json:"version" yaml:"version"`
+	} `gorm:"type:bytes;serializer:json" json:"model,omitempty"`
 }
 
-// ModelDefinitionMetadataCapabilitiesEntityState defines model for ModelDefinition.Metadata.Capabilities.EntityState.
+// ModelDefinitionStatus Status of model, including:
+// - duplicate: this component is a duplicate of another. The component that is to be the canonical reference and that is duplicated by other components should not be assigned the 'duplicate' status.
+// - maintenance: model is unavailable for a period of time.
+// - enabled: model is available for use for all users of this Meshery Server.
+// - ignored: model is unavailable for use for all users of this Meshery Server.
+type ModelDefinitionStatus string
+
+// ModelDefinitionRegistrantStatus Connection Status
+type ModelDefinitionRegistrantStatus string
+
+// ModelDefinitionMetadataCapabilitiesEntityState A string starting with an alphanumeric character. Spaces and hyphens allowed.
 type ModelDefinitionMetadataCapabilitiesEntityState string
 
 // ModelDefinitionMetadataCapabilitiesStatus Status of the capability
@@ -118,8 +139,41 @@ type ModelDefinitionMetadataCapabilitiesStatus string
 
 // ModelDefinition_Metadata Metadata containing additional information associated with the model.
 type ModelDefinition_Metadata struct {
-	// Capabilities Meshery manages entities in accordance with their specific capabilities. This field explicitly identifies those capabilities largely by what actions a given component supports; e.g. metric-scrape, sub-interface, and so on. This field is extensible. Entities may define a broad array of capabilities, which are in-turn dynamically interpretted by Meshery for full lifecycle management.
-	Capabilities *[]capability.Capability `json:"capabilities,omitempty" yaml:"capabilities"`
+	// Capabilities Capabilities associated with the model
+	Capabilities *[]struct {
+		// SchemaVersion Specifies the version of the schema to which the capability definition conforms.
+		SchemaVersion string `json:"schemaVersion" yaml:"schemaVersion"`
+
+		// Version Version of the capability definition.
+		Version string `json:"version" yaml:"version"`
+
+		// DisplayName Name of the capability in human-readible format.
+		DisplayName string `json:"displayName" yaml:"displayName"`
+
+		// Description A written representation of the purpose and characteristics of the capability.
+		Description *string `json:"description" yaml:"description"`
+
+		// Kind Top-level categorization of the capability
+		Kind string `json:"kind" yaml:"kind"`
+
+		// Type Classification of capabilities. Used to group capabilities similar in nature.
+		Type string `json:"type" yaml:"type"`
+
+		// SubType Most granular unit of capability classification. The combination of Kind, Type and SubType together uniquely identify a Capability.
+		SubType *string `json:"subType" yaml:"subType"`
+
+		// Key Key that backs the capability.
+		Key *string `json:"key" yaml:"key"`
+
+		// EntityState State of the entity in which the capability is applicable.
+		EntityState []ModelDefinitionMetadataCapabilitiesEntityState `json:"entityState"`
+
+		// Status Status of the capability
+		Status ModelDefinitionMetadataCapabilitiesStatus `json:"status" yaml:"status"`
+
+		// Metadata Metadata contains additional information associated with the capability. Extension point.
+		Metadata *map[string]interface{} `json:"metadata" yaml:"metadata"`
+	} `json:"capabilities,omitempty"`
 
 	// IsAnnotation Indicates whether the model and its entities should be treated as deployable entities or as logical representations.
 	IsAnnotation *bool `json:"isAnnotation" yaml:"isAnnotation"`
@@ -130,26 +184,16 @@ type ModelDefinition_Metadata struct {
 	// SecondaryColor Secondary color associated with the model.
 	SecondaryColor *string `json:"secondaryColor" yaml:"secondaryColor"`
 
+	// SvgWhite SVG representation of the model in white color.
+	SvgWhite *string `json:"svgWhite" yaml:"svgWhite"`
+
 	// SvgColor SVG representation of the model in colored format.
-	SvgColor string `json:"svgColor" yaml:"svgColor"`
+	SvgColor *string `json:"svgColor" yaml:"svgColor"`
 
 	// SvgComplete SVG representation of the complete model.
-	SvgComplete *string `json:"svgComplete,omitempty" yaml:"svgComplete,omitempty"`
-
-	// SvgWhite SVG representation of the model in white color.
-	SvgWhite             string                 `json:"svgWhite" yaml:"svgWhite"`
-	AdditionalProperties map[string]interface{} `json:"-" yaml:"-"`
+	SvgComplete          *string                `json:"svgComplete" yaml:"svgComplete"`
+	AdditionalProperties map[string]interface{} `json:"-"`
 }
-
-// ModelDefinitionRegistrantStatus Connection Status
-type ModelDefinitionRegistrantStatus string
-
-// ModelDefinitionStatus Status of model, including:
-// - duplicate: this component is a duplicate of another. The component that is to be the canonical reference and that is duplicated by other components should not be assigned the 'duplicate' status.
-// - maintenance: model is unavailable for a period of time.
-// - enabled: model is available for use for all users of this Meshery Server.
-// - ignored: model is unavailable for use for all users of this Meshery Server.
-type ModelDefinitionStatus string
 
 // Getter for additional properties for ModelDefinition_Metadata. Returns the specified
 // element and whether it was found
@@ -208,6 +252,14 @@ func (a *ModelDefinition_Metadata) UnmarshalJSON(b []byte) error {
 		delete(object, "secondaryColor")
 	}
 
+	if raw, found := object["svgWhite"]; found {
+		err = json.Unmarshal(raw, &a.SvgWhite)
+		if err != nil {
+			return fmt.Errorf("error reading 'svgWhite': %w", err)
+		}
+		delete(object, "svgWhite")
+	}
+
 	if raw, found := object["svgColor"]; found {
 		err = json.Unmarshal(raw, &a.SvgColor)
 		if err != nil {
@@ -222,14 +274,6 @@ func (a *ModelDefinition_Metadata) UnmarshalJSON(b []byte) error {
 			return fmt.Errorf("error reading 'svgComplete': %w", err)
 		}
 		delete(object, "svgComplete")
-	}
-
-	if raw, found := object["svgWhite"]; found {
-		err = json.Unmarshal(raw, &a.SvgWhite)
-		if err != nil {
-			return fmt.Errorf("error reading 'svgWhite': %w", err)
-		}
-		delete(object, "svgWhite")
 	}
 
 	if len(object) != 0 {
@@ -279,9 +323,18 @@ func (a ModelDefinition_Metadata) MarshalJSON() ([]byte, error) {
 		}
 	}
 
-	object["svgColor"], err = json.Marshal(a.SvgColor)
-	if err != nil {
-		return nil, fmt.Errorf("error marshaling 'svgColor': %w", err)
+	if a.SvgWhite != nil {
+		object["svgWhite"], err = json.Marshal(a.SvgWhite)
+		if err != nil {
+			return nil, fmt.Errorf("error marshaling 'svgWhite': %w", err)
+		}
+	}
+
+	if a.SvgColor != nil {
+		object["svgColor"], err = json.Marshal(a.SvgColor)
+		if err != nil {
+			return nil, fmt.Errorf("error marshaling 'svgColor': %w", err)
+		}
 	}
 
 	if a.SvgComplete != nil {
@@ -289,11 +342,6 @@ func (a ModelDefinition_Metadata) MarshalJSON() ([]byte, error) {
 		if err != nil {
 			return nil, fmt.Errorf("error marshaling 'svgComplete': %w", err)
 		}
-	}
-
-	object["svgWhite"], err = json.Marshal(a.SvgWhite)
-	if err != nil {
-		return nil, fmt.Errorf("error marshaling 'svgWhite': %w", err)
 	}
 
 	for fieldName, field := range a.AdditionalProperties {
